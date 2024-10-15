@@ -9,7 +9,7 @@ This is your first article, congrats! You can now start working on your blog, ed
 
 Pelican is a static site generator, written in [Python](http://www.python.org/), that requires no database or server-side logic.
 
-Some of the features include:
+S0:me of the features include:
 
 -  Write your content in [reStructuredText](http://docutils.sourceforge.net/rst.html), [Markdown](http://daringfireball.net/projects/markdown/), or [AsciiDoc](http://www.methods.co.nz/asciidoc/) formats
 -  Completely static output is easy to host anywhere
