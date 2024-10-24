@@ -16,6 +16,8 @@ CATEGORY_FEED_ATOM = "feeds/{slug}.atom.xml"
 
 DELETE_OUTPUT_DIRECTORY = True
 
+PROFILE_IMAGE = "assets/___/me.jpeg"
+
 # Following items are often useful when publishing
 
 # DISQUS_SITENAME = ""
