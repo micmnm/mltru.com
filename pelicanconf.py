@@ -2,6 +2,8 @@ AUTHOR = 'Mircea Militaru'
 SITENAME = 'mltru'
 SITEURL = ""
 
+THEME = "pelican-hyde/"
+
 PATH = "content"
 
 TIMEZONE = 'Europe/Bucharest'
