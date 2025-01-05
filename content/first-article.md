@@ -1,6 +1,6 @@
 Title: My First Article
 Date: 2010-12-03 10:20
-Category: lab
+Category: texts
 
 Link to about [here]({filename}/pages/about.md)
 

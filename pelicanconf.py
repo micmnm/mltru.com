@@ -1,6 +1,6 @@
 AUTHOR = 'Mircea Militaru'
 SITENAME = 'mltru'
-SITEURL = ""
+SITEURL = "http://localhost:8000"
 
 THEME = "pelican-hyde/"
 
@@ -16,6 +16,7 @@ CATEGORY_FEED_ATOM = None
 TRANSLATION_FEED_ATOM = None
 AUTHOR_FEED_ATOM = None
 AUTHOR_FEED_RSS = None
+FONT_BOOKERLY = "True"
 
 # Blogroll
 #LINKS = None
@@ -41,6 +42,7 @@ DEFAULT_PAGINATION = False
 # TEMPLATE VARS
 SIDEBAR_SOCIAL = False
 MENUITEMS = (
+    ("texts", "category/texts.html"),
     ("lab", "category/lab.html"),
     ("about", "pages/about.html")
 )

@@ -1,13 +1,11 @@
-Title: about
+Title: About me
 Date: 2024-10-24 10:20
-Modified: 2024-10-24 10:20
+Modified: 2025-01-05 21:40
 Category: lab
 Status: hidden
 Slug: about
 Authors: Mircea
-Summary: about page
-
-# About me
+Summary: About me
 
 Short
 
