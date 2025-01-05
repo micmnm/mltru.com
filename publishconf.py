@@ -1,24 +1,48 @@
-# This file is only used if you use `make publish` or
-# explicitly specify it as your config file.
+AUTHOR = 'Mircea Militaru'
+SITENAME = 'mltru'
+SITEURL = "https://mltru.com/pelican"
 
-import os
-import sys
+THEME = "pelican-hyde/"
 
-sys.path.append(os.curdir)
-from pelicanconf import *
+PATH = "content"
 
-# If your site is available via HTTPS, make sure SITEURL begins with https://
-SITEURL = ""
-RELATIVE_URLS = False
+TIMEZONE = 'Europe/Bucharest'
 
-FEED_ALL_ATOM = "feeds/all.atom.xml"
-CATEGORY_FEED_ATOM = "feeds/{slug}.atom.xml"
+DEFAULT_LANG = 'English'
 
-DELETE_OUTPUT_DIRECTORY = True
+# Feed generation is usually not desired when developing
+FEED_ALL_ATOM = None
+CATEGORY_FEED_ATOM = None
+TRANSLATION_FEED_ATOM = None
+AUTHOR_FEED_ATOM = None
+AUTHOR_FEED_RSS = None
+FONT_BOOKERLY = "True"
 
-PROFILE_IMAGE = "assets/___/me.jpeg"
+# Blogroll
+#LINKS = None
+LINKS = (
+    ("Pelican", "https://getpelican.com/"),
+    ("Python.org", "https://www.python.org/"),
+    ("Jinja2", "https://palletsprojects.com/p/jinja/"),
+    ("You can modify those links in your config file", "#"),
+)
 
-# Following items are often useful when publishing
+# Social widget
+#SOCIAL = None
+SOCIAL = (
+    ("linkedin", "https://www.linkedin.com/in/mircea-militaru-97201218/"),
+    ("github", "https://github.com/micmnm/"),
+)
 
-# DISQUS_SITENAME = ""
-# GOOGLE_ANALYTICS = ""
+DEFAULT_PAGINATION = False
+
+# Uncomment following line if you want document-relative URLs when developing
+# RELATIVE_URLS = True
+
+# TEMPLATE VARS
+SIDEBAR_SOCIAL = False
+MENUITEMS = (
+    ("texts", "category/texts.html"),
+    ("lab", "category/lab.html"),
+    ("about", "pages/about.html")
+)
