@@ -7,6 +7,7 @@ Slug: about
 Authors: Mircea
 Summary: About me
 
-My name is Mircea and I'm computer hobbiest and I like to play on my computer by experimenting with software or just games.
+My name is Mircea and I'm computer hobbiest. 
+I like to play on my computer by experimenting with software, thinkering and playing.
 
-I enjoy simple things like most people and created this website just to keep track of my discoveries.
+[mltru.com](https://mltru.com/) was created to keep track of my discoveries.
