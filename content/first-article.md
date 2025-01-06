@@ -1,5 +1,5 @@
-Title: My First Article
-Date: 2010-12-03 10:20
+Title: My latest Article
+Date: 2099-12-03 10:20
 Category: texts
 
 Link to about [here]({filename}/pages/about.md)
