@@ -1,0 +1,8 @@
+node_modules
+dist
+.git
+.astro
+output
+pelican-hyde
+__pycache__
+*.sketch
