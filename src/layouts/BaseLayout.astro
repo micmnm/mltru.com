@@ -1,0 +1,78 @@
+---
+import "../styles/global.css";
+
+interface Props {
+  title?: string;
+}
+
+const { title } = Astro.props;
+const siteTitle = "mltru";
+const pageTitle = title ? `${title} — ${siteTitle}` : siteTitle;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <link rel="icon" href="/favicon.ico" />
+  </head>
+  <body>
+    <nav>
+      <a href="/" class="nav-title">{siteTitle}</a>
+      <div class="nav-links">
+        <a href="/posts">posts</a>
+        <a href="/about">about</a>
+      </div>
+    </nav>
+    <main>
+      <slot />
+    </main>
+  </body>
+</html>
+
+<style>
+  nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 2rem;
+    max-width: 48rem;
+    margin: 0 auto;
+  }
+
+  .nav-title {
+    font-family: var(--font-heading);
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--text-bright);
+  }
+
+  .nav-title:hover {
+    text-decoration: none;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 1.5rem;
+  }
+
+  .nav-links a {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    text-transform: lowercase;
+    letter-spacing: 0.05em;
+  }
+
+  .nav-links a:hover {
+    color: var(--text-bright);
+    text-decoration: none;
+  }
+
+  main {
+    max-width: 48rem;
+    margin: 0 auto;
+    padding: 0 2rem 4rem;
+  }
+</style>
