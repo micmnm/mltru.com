@@ -1,0 +1,29 @@
+steps:
+  - name: build
+    image: node:22-alpine
+    commands:
+      - npm ci
+      - npm run build
+
+  - name: docker
+    image: woodpeckerci/plugin-docker-buildx
+    settings:
+      repo: REGISTRY_HOST/mltru-com
+      registry: REGISTRY_HOST
+      tags: latest,${CI_COMMIT_SHA:0:8}
+      username:
+        from_secret: registry_username
+      password:
+        from_secret: registry_password
+
+  - name: deploy
+    image: bitnami/kubectl
+    commands:
+      - kubectl set image deployment/mltru-com web=REGISTRY_HOST/mltru-com:${CI_COMMIT_SHA:0:8} -n mltru-com
+    environment:
+      KUBECONFIG:
+        from_secret: kubeconfig
+
+when:
+  branch: main
+  event: push
