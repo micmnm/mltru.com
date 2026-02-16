@@ -1,7 +1,148 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+
+const posts = await getCollection("posts");
+
+// Sort posts by date descending
+posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+// Group by year
+const postsByYear: Record<number, typeof posts> = {};
+for (const post of posts) {
+  const year = post.data.date.getFullYear();
+  if (!postsByYear[year]) postsByYear[year] = [];
+  postsByYear[year].push(post);
+}
+const years = Object.keys(postsByYear)
+  .map(Number)
+  .sort((a, b) => b - a);
+
+// Extract first sentence from markdown body
+function getExcerpt(body: string): string {
+  // Strip markdown syntax, get first sentence
+  const plain = body
+    .replace(/^---[\s\S]*?---/, "")
+    .replace(/!\[.*?\]\(.*?\)/g, "")
+    .replace(/\[([^\]]+)\]\(.*?\)/g, "$1")
+    .replace(/[#*>`_~]/g, "")
+    .trim();
+  const match = plain.match(/[^.!?]*[.!?]/);
+  return match ? match[0].trim() : plain.slice(0, 120);
+}
 ---
 
 <BaseLayout>
-  <p>Site is coming together.</p>
+  <header class="intro">
+    <h1>Hi, I'm Mircea.</h1>
+    <p class="tagline">Computer hobbyist. Experimenting, tinkering, playing.</p>
+    <div class="social">
+      <a href="https://github.com/micmnm/" target="_blank">github</a>
+      <a href="https://www.linkedin.com/in/mircea-militaru-97201218/" target="_blank">linkedin</a>
+      <a href="/rss.xml">rss</a>
+    </div>
+  </header>
+
+  <section class="posts">
+    {years.map((year) => (
+      <div class="year-group">
+        <h2 class="year">{year}</h2>
+        <ul>
+          {postsByYear[year].map((post) => (
+            <li>
+              <a href={`/posts/${post.id}/`}>
+                <span class="post-title">{post.data.title}</span>
+                <span class="post-excerpt">{getExcerpt(post.body ?? "")}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    ))}
+  </section>
 </BaseLayout>
+
+<style>
+  .intro {
+    margin: 2rem 0 3rem;
+  }
+
+  .intro h1 {
+    font-size: 2rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .tagline {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+  }
+
+  .social {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.8rem;
+  }
+
+  .social a {
+    color: var(--text-muted);
+    border: 1px solid var(--surface);
+    padding: 0.25rem 0.6rem;
+    border-radius: 3px;
+  }
+
+  .social a:hover {
+    color: var(--text-bright);
+    border-color: var(--text-muted);
+    text-decoration: none;
+  }
+
+  .posts {
+    margin-top: 2rem;
+  }
+
+  .year {
+    font-size: 1rem;
+    color: var(--text-muted);
+    font-weight: 400;
+    margin-bottom: 0.8rem;
+    letter-spacing: 0.1em;
+  }
+
+  .year-group {
+    margin-bottom: 2rem;
+  }
+
+  ul {
+    list-style: none;
+  }
+
+  li {
+    margin-bottom: 1rem;
+  }
+
+  li a {
+    display: block;
+    padding: 0.6rem 0.8rem;
+    border-radius: 4px;
+  }
+
+  li a:hover {
+    background: var(--surface);
+    text-decoration: none;
+  }
+
+  .post-title {
+    display: block;
+    color: var(--text-bright);
+    font-size: 0.95rem;
+    font-weight: 500;
+  }
+
+  .post-excerpt {
+    display: block;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    margin-top: 0.2rem;
+  }
+</style>
