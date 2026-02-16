@@ -1,5 +1,15 @@
 # mltru.com
 
-Personal website built with [Pelican](http://getpelican.com), written in [Markdown](http://daringfireball.net/projects/markdown/), with [Sublime](https://www.sublimetext.com) and published via [Yunohost](http://yunohost.org).
+Personal website built with [Astro](https://astro.build), written in Markdown.
 
-Theme is based on [pelican-hyde](https://github.com/jvanz/pelican-hyde) and adjusted to my preferences.
+## Development
+
+```bash
+npm install
+npm run dev       # http://localhost:4321
+npm run build     # outputs to dist/
+```
+
+## Deploy
+
+Pushes to `main` trigger Woodpecker CI which builds and deploys to LKE.
