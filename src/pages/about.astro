@@ -1,0 +1,33 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="About">
+  <article class="about">
+    <h1>About me</h1>
+    <p>
+      My name is Mircea and I'm a computer hobbyist.
+      I like to play on my computer by experimenting with software, tinkering and playing.
+    </p>
+    <p>
+      <a href="https://mltru.com/">mltru.com</a> was created to keep track of my discoveries.
+    </p>
+  </article>
+</BaseLayout>
+
+<style>
+  .about {
+    margin-top: 2rem;
+  }
+
+  .about h1 {
+    font-size: 1.6rem;
+    margin-bottom: 1rem;
+  }
+
+  .about p {
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    line-height: 1.8;
+  }
+</style>
