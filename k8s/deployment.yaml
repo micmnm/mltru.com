@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: web
-          image: REGISTRY_HOST/mltru-com:latest
+          image: synology.dala-triceratops.ts.net:6000/mltru-com:latest
           ports:
             - containerPort: 80
           resources:

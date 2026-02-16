@@ -1,29 +1,73 @@
+# =============================================================================
+# Woodpecker CI Pipeline for mltru.com (Astro static site)
+# =============================================================================
+# Branch: main - Build, push Docker image, auto-deploy to LKE
+# =============================================================================
+
+when:
+  branch: [main, master]
+  event: [push, manual]
+
+variables:
+  - &node_image node:22-alpine
+  - &docker_image docker:24
+  - &kubectl_image alpine/k8s:1.29.0
+
 steps:
-  - name: build
-    image: node:22-alpine
+  # ---------------------------------------------------------------------------
+  # Install dependencies and build
+  # ---------------------------------------------------------------------------
+  build:
+    image: *node_image
     commands:
       - npm ci
       - npm run build
 
-  - name: docker
-    image: woodpeckerci/plugin-docker-buildx
-    settings:
-      repo: REGISTRY_HOST/mltru-com
-      registry: REGISTRY_HOST
-      tags: latest,${CI_COMMIT_SHA:0:8}
-      username:
-        from_secret: registry_username
-      password:
-        from_secret: registry_password
-
-  - name: deploy
-    image: bitnami/kubectl
-    commands:
-      - kubectl set image deployment/mltru-com web=REGISTRY_HOST/mltru-com:${CI_COMMIT_SHA:0:8} -n mltru-com
+  # ---------------------------------------------------------------------------
+  # Build and push Docker image
+  # ---------------------------------------------------------------------------
+  docker:
+    image: *docker_image
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     environment:
-      KUBECONFIG:
-        from_secret: kubeconfig
+      DOCKER_REGISTRY:
+        from_secret: docker_registry
+      DOCKER_REGISTRY_USER:
+        from_secret: docker_registry_user
+      DOCKER_REGISTRY_PASSWORD:
+        from_secret: docker_registry_password
+    commands:
+      - docker login -u "$DOCKER_REGISTRY_USER" -p "$DOCKER_REGISTRY_PASSWORD" "$DOCKER_REGISTRY"
+      - docker build -t "$DOCKER_REGISTRY/mltru-com:$(date +%Y%m%d)-${CI_PIPELINE_NUMBER}" -t "$DOCKER_REGISTRY/mltru-com:latest" --build-arg BUILD_VERSION=${CI_COMMIT_SHA:0:8} -f Dockerfile .
+      - docker push "$DOCKER_REGISTRY/mltru-com:$(date +%Y%m%d)-${CI_PIPELINE_NUMBER}"
+      - docker push "$DOCKER_REGISTRY/mltru-com:latest"
+    depends_on: [build]
 
-when:
-  branch: main
-  event: push
+  # ---------------------------------------------------------------------------
+  # Deploy to LKE
+  # ---------------------------------------------------------------------------
+  deploy:
+    image: *kubectl_image
+    environment:
+      HOME: /tmp
+      KUBECONFIG_SECRET:
+        from_secret: kubeconfig
+      DOCKER_REGISTRY:
+        from_secret: docker_registry
+    commands:
+      - mkdir -p /tmp/.kube
+      - echo "$KUBECONFIG_SECRET" > /tmp/.kube/config
+      - chmod 600 /tmp/.kube/config
+      - kubectl --kubeconfig=/tmp/.kube/config set image deployment/mltru-com web="$DOCKER_REGISTRY/mltru-com:$(date +%Y%m%d)-${CI_PIPELINE_NUMBER}" -n mltru-com
+      - kubectl --kubeconfig=/tmp/.kube/config rollout status deployment/mltru-com -n mltru-com --timeout=120s
+    depends_on: [docker]
+
+# =============================================================================
+# Required Secrets (configure in Woodpecker UI)
+# =============================================================================
+# docker_registry          - Synology registry URL (e.g., synology.dala-triceratops.ts.net:6000)
+# docker_registry_user     - Registry username
+# docker_registry_password - Registry password
+# kubeconfig               - Kubeconfig for LKE cluster
+# =============================================================================
