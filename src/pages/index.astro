@@ -32,24 +32,16 @@ function formatDate(date: Date): string {
 
 <BaseLayout>
   <header class="intro">
-    <img src="/avatar.png" alt="" class="avatar" />
+    <img src="/avatar.png" alt="" class="avatar" transition:name="avatar" />
     <div class="intro-text">
-      <h1>mircea</h1>
-      <p class="tagline">Still taking things apart.</p>
+      <h1 transition:name="intro-name">mircea</h1>
+      <p class="tagline" transition:name="intro-tagline">still taking things apart</p>
     </div>
   </header>
 
-  <div id="tag-switcher">
-    <button class="active" data-idx="0">A: serif italic (current)</button>
-    <button data-idx="1">B: serif normal</button>
-    <button data-idx="2">C: sans light</button>
-    <button data-idx="3">D: sans small caps</button>
-    <button data-idx="4">E: mono</button>
-  </div>
-
   {latestPost && Content && (
     <article class="latest">
-      <h2 class="latest-title">{latestPost.data.title}</h2>
+      <h2 class="latest-title"><a href={`/posts/${latestPost.id}/`} class="latest-title-link">{latestPost.data.title}</a></h2>
       <time class="latest-date" datetime={latestPost.data.date.toISOString()}>{formatDate(latestPost.data.date)}</time>
       <div class="latest-content">
         <Content />
@@ -76,65 +68,31 @@ function formatDate(date: Date): string {
 
 <style>
   .intro {
-    margin: 1rem 0 2.5rem;
-    padding-bottom: 2.5rem;
+    margin: 1rem 0 1.5rem;
+    padding-bottom: 1.5rem;
     border-bottom: 1px solid var(--surface);
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 0.8rem;
   }
 
   .avatar {
-    width: 5rem;
-    height: 5rem;
+    width: 3.5rem;
+    height: 3.5rem;
     border-radius: 50%;
     flex-shrink: 0;
   }
 
   .intro h1 {
-    font-size: 1.6rem;
-    margin-bottom: 0.1rem;
+    font-size: 1.2rem;
+    margin-bottom: 0.05rem;
     line-height: 1.2;
   }
 
   .tagline {
+    font-family: 'Fira Code', monospace;
     color: var(--text-muted);
-    font-size: 0.85rem;
-  }
-
-  #tag-switcher {
-    position: fixed;
-    bottom: 1rem;
-    right: 1rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.3rem;
-    background: var(--surface);
-    padding: 0.6rem;
-    border-radius: 6px;
-    border: 1px solid #444;
-    z-index: 100;
-  }
-
-  #tag-switcher button {
-    background: none;
-    border: 1px solid transparent;
-    color: var(--text-muted);
-    font-family: var(--font-heading);
-    font-size: 0.7rem;
-    padding: 0.3rem 0.5rem;
-    border-radius: 3px;
-    cursor: pointer;
-    text-align: left;
-  }
-
-  #tag-switcher button:hover {
-    color: var(--text-bright);
-  }
-
-  #tag-switcher button.active {
-    color: var(--accent);
-    border-color: var(--accent);
+    font-size: 0.72rem;
   }
 
   .latest {
@@ -144,6 +102,27 @@ function formatDate(date: Date): string {
   .latest-title {
     font-size: 1.4rem;
     margin-bottom: 0.3rem;
+  }
+
+  .latest-title-link {
+    color: var(--text-bright);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .latest-title-link:hover {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .latest-title-link:active {
+    animation: pulse 0.3s ease-out;
+  }
+
+  @keyframes pulse {
+    0% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(0.98); }
+    100% { opacity: 1; transform: scale(1); }
   }
 
   .latest-date {
@@ -214,27 +193,3 @@ function formatDate(date: Date): string {
     margin-top: 0.15rem;
   }
 </style>
-
-<script>
-  const tagline = document.querySelector('.tagline') as HTMLElement;
-  const switcher = document.getElementById('tag-switcher');
-  const presets = [
-    { fontFamily: "'Libre Baskerville', serif", fontStyle: "italic", fontWeight: "400", fontSize: "0.85rem", letterSpacing: "normal", fontVariant: "normal" },
-    { fontFamily: "'Libre Baskerville', serif", fontStyle: "normal", fontWeight: "400", fontSize: "0.85rem", letterSpacing: "normal", fontVariant: "normal" },
-    { fontFamily: "'Space Grotesk', sans-serif", fontStyle: "normal", fontWeight: "400", fontSize: "0.82rem", letterSpacing: "0.02em", fontVariant: "normal" },
-    { fontFamily: "'Space Grotesk', sans-serif", fontStyle: "normal", fontWeight: "400", fontSize: "0.78rem", letterSpacing: "0.08em", fontVariant: "small-caps" },
-    { fontFamily: "'IBM Plex Mono', monospace", fontStyle: "normal", fontWeight: "400", fontSize: "0.78rem", letterSpacing: "normal", fontVariant: "normal" },
-  ];
-
-  // Apply default
-  Object.assign(tagline.style, presets[0]);
-
-  switcher?.addEventListener('click', (e) => {
-    const btn = (e.target as HTMLElement).closest('button');
-    if (!btn) return;
-    const idx = parseInt(btn.getAttribute('data-idx') || '0');
-    Object.assign(tagline.style, presets[idx]);
-    switcher.querySelectorAll('button').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-  });
-</script>

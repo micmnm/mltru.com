@@ -21,6 +21,15 @@ const dateStr = post.data.date.toLocaleDateString("en-US", {
 ---
 
 <BaseLayout title={post.data.title}>
+  <header class="site-intro">
+    <a href="/" class="intro-link">
+      <img src="/avatar.png" alt="" class="avatar" transition:name="avatar" />
+      <div class="intro-text">
+        <span class="intro-name" transition:name="intro-name">mircea</span>
+        <span class="intro-tagline" transition:name="intro-tagline">still taking things apart</span>
+      </div>
+    </a>
+  </header>
   <article>
     <header>
       <h1>{post.data.title}</h1>
@@ -33,6 +42,45 @@ const dateStr = post.data.date.toLocaleDateString("en-US", {
 </BaseLayout>
 
 <style>
+  .site-intro {
+    margin: 0.8rem 0 1.2rem;
+    padding-bottom: 1.2rem;
+    border-bottom: 1px solid var(--surface);
+  }
+
+  .intro-link {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    text-decoration: none;
+  }
+
+  .intro-link:hover {
+    text-decoration: none;
+  }
+
+  .avatar {
+    width: 2.4rem;
+    height: 2.4rem;
+    border-radius: 50%;
+  }
+
+  .intro-name {
+    display: block;
+    font-family: var(--font-heading);
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-bright);
+    line-height: 1.2;
+  }
+
+  .intro-tagline {
+    display: block;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.6rem;
+    color: var(--text-muted);
+  }
+
   article {
     margin-top: 2rem;
   }
