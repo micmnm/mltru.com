@@ -29,6 +29,16 @@ const pageTitle = title ? `${title} — ${siteTitle}` : siteTitle;
     <main>
       <slot />
     </main>
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <div class="footer-links">
+          <a href="https://github.com/micmnm/" target="_blank">github</a>
+          <a href="https://www.linkedin.com/in/mircea-militaru-97201218/" target="_blank">linkedin</a>
+          <a href="/rss.xml">rss</a>
+        </div>
+        <span class="footer-copy">&copy; mircea</span>
+      </div>
+    </footer>
   </body>
 </html>
 
@@ -74,5 +84,39 @@ const pageTitle = title ? `${title} — ${siteTitle}` : siteTitle;
     max-width: 48rem;
     margin: 0 auto;
     padding: 0 2rem 4rem;
+  }
+
+  .site-footer {
+    max-width: 48rem;
+    margin: 0 auto;
+    padding: 0 2rem 2.5rem;
+  }
+
+  .footer-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--surface);
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 1.2rem;
+  }
+
+  .footer-links a {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  .footer-links a:hover {
+    color: var(--text-bright);
+    text-decoration: none;
+  }
+
+  .footer-copy {
+    font-size: 0.7rem;
+    color: var(--text-muted);
   }
 </style>

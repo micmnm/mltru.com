@@ -1,5 +1,5 @@
 ---
-title: "mltru.com publishing"
+title: "Mltru.com Publishing"
 date: 2024-10-24
 ---
 

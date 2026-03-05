@@ -1,116 +1,181 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { getCollection } from "astro:content";
+import { getCollection, render } from "astro:content";
 
 const posts = await getCollection("posts");
-
-// Sort posts by date descending
 posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 
-// Group by year
-const postsByYear: Record<number, typeof posts> = {};
-for (const post of posts) {
-  const year = post.data.date.getFullYear();
-  if (!postsByYear[year]) postsByYear[year] = [];
-  postsByYear[year].push(post);
-}
-const years = Object.keys(postsByYear)
-  .map(Number)
-  .sort((a, b) => b - a);
+const latestPost = posts[0];
+const olderPosts = posts.slice(1, 5);
 
-// Extract first sentence from markdown body
-function getExcerpt(body: string): string {
-  // Strip markdown syntax, get first sentence
-  const plain = body
+const { Content } = latestPost ? await render(latestPost) : { Content: null };
+
+function stripMarkdown(body: string): string {
+  return body
     .replace(/^---[\s\S]*?---/, "")
     .replace(/!\[.*?\]\(.*?\)/g, "")
     .replace(/\[([^\]]+)\]\(.*?\)/g, "$1")
     .replace(/[#*>`_~]/g, "")
     .trim();
+}
+
+function getExcerpt(body: string): string {
+  const plain = stripMarkdown(body);
   const match = plain.match(/[^.!?]*[.!?]/);
   return match ? match[0].trim() : plain.slice(0, 120);
+}
+
+function formatDate(date: Date): string {
+  return date.toLocaleDateString("en-US", { month: "long", year: "numeric" });
 }
 ---
 
 <BaseLayout>
   <header class="intro">
-    <h1>Hi, I'm Mircea.</h1>
-    <p class="tagline">Computer hobbyist. Experimenting, tinkering, playing.</p>
-    <div class="social">
-      <a href="https://github.com/micmnm/" target="_blank">github</a>
-      <a href="https://www.linkedin.com/in/mircea-militaru-97201218/" target="_blank">linkedin</a>
-      <a href="/rss.xml">rss</a>
+    <img src="/avatar.png" alt="" class="avatar" />
+    <div class="intro-text">
+      <h1>mircea</h1>
+      <p class="tagline">Still taking things apart.</p>
     </div>
   </header>
 
-  <section class="posts">
-    {years.map((year) => (
-      <div class="year-group">
-        <h2 class="year">{year}</h2>
-        <ul>
-          {postsByYear[year].map((post) => (
-            <li>
-              <a href={`/posts/${post.id}/`}>
-                <span class="post-title">{post.data.title}</span>
-                <span class="post-excerpt">{getExcerpt(post.body ?? "")}</span>
-              </a>
-            </li>
-          ))}
-        </ul>
+  <div id="tag-switcher">
+    <button class="active" data-idx="0">A: serif italic (current)</button>
+    <button data-idx="1">B: serif normal</button>
+    <button data-idx="2">C: sans light</button>
+    <button data-idx="3">D: sans small caps</button>
+    <button data-idx="4">E: mono</button>
+  </div>
+
+  {latestPost && Content && (
+    <article class="latest">
+      <h2 class="latest-title">{latestPost.data.title}</h2>
+      <time class="latest-date" datetime={latestPost.data.date.toISOString()}>{formatDate(latestPost.data.date)}</time>
+      <div class="latest-content">
+        <Content />
       </div>
-    ))}
-  </section>
+    </article>
+  )}
+
+  {olderPosts.length > 0 && (
+    <section class="older">
+      <h3 class="section-label">earlier</h3>
+      <ul>
+        {olderPosts.map((post) => (
+          <li>
+            <a href={`/posts/${post.id}/`}>
+              <span class="post-title">{post.data.title}</span>
+              <span class="post-excerpt">{getExcerpt(post.body ?? "")}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
 </BaseLayout>
 
 <style>
   .intro {
-    margin: 2rem 0 3rem;
+    margin: 1rem 0 2.5rem;
+    padding-bottom: 2.5rem;
+    border-bottom: 1px solid var(--surface);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .avatar {
+    width: 5rem;
+    height: 5rem;
+    border-radius: 50%;
+    flex-shrink: 0;
   }
 
   .intro h1 {
-    font-size: 2rem;
-    margin-bottom: 0.3rem;
+    font-size: 1.6rem;
+    margin-bottom: 0.1rem;
+    line-height: 1.2;
   }
 
   .tagline {
     color: var(--text-muted);
-    font-size: 0.9rem;
+    font-size: 0.85rem;
+  }
+
+  #tag-switcher {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    background: var(--surface);
+    padding: 0.6rem;
+    border-radius: 6px;
+    border: 1px solid #444;
+    z-index: 100;
+  }
+
+  #tag-switcher button {
+    background: none;
+    border: 1px solid transparent;
+    color: var(--text-muted);
+    font-family: var(--font-heading);
+    font-size: 0.7rem;
+    padding: 0.3rem 0.5rem;
+    border-radius: 3px;
+    cursor: pointer;
+    text-align: left;
+  }
+
+  #tag-switcher button:hover {
+    color: var(--text-bright);
+  }
+
+  #tag-switcher button.active {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .latest {
+    margin: 2rem 0 3rem;
+  }
+
+  .latest-title {
+    font-size: 1.4rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .latest-date {
+    display: block;
+    font-family: var(--font-heading);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+  }
+
+  .latest-content {
+    font-size: 0.95rem;
+    line-height: 1.8;
+  }
+
+  .latest-content :global(p) {
     margin-bottom: 1rem;
   }
 
-  .social {
-    display: flex;
-    gap: 1rem;
-    font-size: 0.8rem;
-  }
-
-  .social a {
+  .section-label {
+    font-size: 0.7rem;
     color: var(--text-muted);
-    border: 1px solid var(--surface);
-    padding: 0.25rem 0.6rem;
-    border-radius: 3px;
-  }
-
-  .social a:hover {
-    color: var(--text-bright);
-    border-color: var(--text-muted);
-    text-decoration: none;
-  }
-
-  .posts {
-    margin-top: 2rem;
-  }
-
-  .year {
-    font-size: 1rem;
-    color: var(--text-muted);
-    font-weight: 400;
-    margin-bottom: 0.8rem;
+    text-transform: lowercase;
     letter-spacing: 0.1em;
+    font-weight: 400;
+    margin-bottom: 1rem;
   }
 
-  .year-group {
-    margin-bottom: 2rem;
+  .older {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--surface);
   }
 
   ul {
@@ -118,31 +183,58 @@ function getExcerpt(body: string): string {
   }
 
   li {
-    margin-bottom: 1rem;
+    margin-bottom: 0.8rem;
   }
 
   li a {
     display: block;
-    padding: 0.6rem 0.8rem;
-    border-radius: 4px;
+    padding: 0.4rem 0;
   }
 
   li a:hover {
-    background: var(--surface);
     text-decoration: none;
+  }
+
+  li a:hover .post-title {
+    color: var(--accent);
   }
 
   .post-title {
     display: block;
+    font-family: var(--font-heading);
     color: var(--text-bright);
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     font-weight: 500;
   }
 
   .post-excerpt {
     display: block;
     color: var(--text-muted);
-    font-size: 0.8rem;
-    margin-top: 0.2rem;
+    font-size: 0.78rem;
+    margin-top: 0.15rem;
   }
 </style>
+
+<script>
+  const tagline = document.querySelector('.tagline') as HTMLElement;
+  const switcher = document.getElementById('tag-switcher');
+  const presets = [
+    { fontFamily: "'Libre Baskerville', serif", fontStyle: "italic", fontWeight: "400", fontSize: "0.85rem", letterSpacing: "normal", fontVariant: "normal" },
+    { fontFamily: "'Libre Baskerville', serif", fontStyle: "normal", fontWeight: "400", fontSize: "0.85rem", letterSpacing: "normal", fontVariant: "normal" },
+    { fontFamily: "'Space Grotesk', sans-serif", fontStyle: "normal", fontWeight: "400", fontSize: "0.82rem", letterSpacing: "0.02em", fontVariant: "normal" },
+    { fontFamily: "'Space Grotesk', sans-serif", fontStyle: "normal", fontWeight: "400", fontSize: "0.78rem", letterSpacing: "0.08em", fontVariant: "small-caps" },
+    { fontFamily: "'IBM Plex Mono', monospace", fontStyle: "normal", fontWeight: "400", fontSize: "0.78rem", letterSpacing: "normal", fontVariant: "normal" },
+  ];
+
+  // Apply default
+  Object.assign(tagline.style, presets[0]);
+
+  switcher?.addEventListener('click', (e) => {
+    const btn = (e.target as HTMLElement).closest('button');
+    if (!btn) return;
+    const idx = parseInt(btn.getAttribute('data-idx') || '0');
+    Object.assign(tagline.style, presets[idx]);
+    switcher.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+</script>

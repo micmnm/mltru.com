@@ -1,16 +1,16 @@
 /* Fonts: Space Grotesk for headings, IBM Plex Mono for body */
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap');
 
 :root {
-  --bg: #1a1a1a;
-  --surface: #2a2a2a;
-  --text: #d4d4d4;
-  --text-bright: #f0f0f0;
+  --bg: #2b2b2b;
+  --surface: #363636;
+  --text: #d8d8d8;
+  --text-bright: #ececec;
   --accent: #7ab8b0;
   --accent-hover: #9ad0c8;
   --text-muted: #888;
   --font-heading: 'Space Grotesk', system-ui, sans-serif;
-  --font-body: 'IBM Plex Mono', 'Courier New', monospace;
+  --font-body: 'Libre Baskerville', Georgia, serif;
 }
 
 *, *::before, *::after {
@@ -20,7 +20,7 @@
 }
 
 html {
-  font-size: 16px;
+  font-size: 18px;
 }
 
 body {

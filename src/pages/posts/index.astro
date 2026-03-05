@@ -5,51 +5,126 @@ import { getCollection } from "astro:content";
 const posts = await getCollection("posts");
 posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 
-const postsByYear: Record<number, typeof posts> = {};
-for (const post of posts) {
-  const year = post.data.date.getFullYear();
-  if (!postsByYear[year]) postsByYear[year] = [];
-  postsByYear[year].push(post);
-}
-const years = Object.keys(postsByYear).map(Number).sort((a, b) => b - a);
+const latestPost = posts[0];
+const olderPosts = posts.slice(1);
 
-function getExcerpt(body: string): string {
-  const plain = body
+const olderByYear: Record<number, typeof posts> = {};
+for (const post of olderPosts) {
+  const year = post.data.date.getFullYear();
+  if (!olderByYear[year]) olderByYear[year] = [];
+  olderByYear[year].push(post);
+}
+const years = Object.keys(olderByYear).map(Number).sort((a, b) => b - a);
+
+function stripMarkdown(body: string): string {
+  return body
     .replace(/^---[\s\S]*?---/, "")
     .replace(/!\[.*?\]\(.*?\)/g, "")
     .replace(/\[([^\]]+)\]\(.*?\)/g, "$1")
     .replace(/[#*>`_~]/g, "")
     .trim();
+}
+
+function getExcerpt(body: string): string {
+  const plain = stripMarkdown(body);
   const match = plain.match(/[^.!?]*[.!?]/);
   return match ? match[0].trim() : plain.slice(0, 120);
+}
+
+function getLongExcerpt(body: string): string {
+  const plain = stripMarkdown(body);
+  const sentences = plain.match(/[^.!?]+[.!?]+/g) || [];
+  return sentences.slice(0, 3).join(" ").trim() || plain.slice(0, 300);
 }
 ---
 
 <BaseLayout title="Posts">
   <h1 class="page-title">Posts</h1>
-  <section class="posts">
-    {years.map((year) => (
-      <div class="year-group">
-        <h2 class="year">{year}</h2>
-        <ul>
-          {postsByYear[year].map((post) => (
-            <li>
-              <a href={`/posts/${post.id}/`}>
-                <span class="post-title">{post.data.title}</span>
-                <span class="post-excerpt">{getExcerpt(post.body ?? "")}</span>
-              </a>
-            </li>
-          ))}
-        </ul>
-      </div>
-    ))}
-  </section>
+
+  {latestPost && (
+    <section class="latest">
+      <a href={`/posts/${latestPost.id}/`} class="latest-link">
+        <span class="latest-label">latest</span>
+        <h2 class="latest-title">{latestPost.data.title}</h2>
+        <p class="latest-excerpt">{getLongExcerpt(latestPost.body ?? "")}</p>
+        <span class="latest-read">continue reading &rarr;</span>
+      </a>
+    </section>
+  )}
+
+  {years.length > 0 && (
+    <section class="posts">
+      {years.map((year) => (
+        <div class="year-group">
+          <h2 class="year">{year}</h2>
+          <ul>
+            {olderByYear[year]?.map((post) => (
+              <li>
+                <a href={`/posts/${post.id}/`}>
+                  <span class="post-title">{post.data.title}</span>
+                  <span class="post-excerpt">{getExcerpt(post.body ?? "")}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </section>
+  )}
 </BaseLayout>
 
 <style>
   .page-title {
     font-size: 1.6rem;
     margin: 2rem 0 1.5rem;
+  }
+
+  .latest {
+    margin: 1.5rem 0 2.5rem;
+  }
+
+  .latest-link {
+    display: block;
+    padding: 1.2rem 1.2rem;
+    border-left: 2px solid var(--accent);
+    border-radius: 2px;
+  }
+
+  .latest-link:hover {
+    background: var(--surface);
+    text-decoration: none;
+  }
+
+  .latest-label {
+    display: block;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-bottom: 0.4rem;
+  }
+
+  .latest-title {
+    font-size: 1.3rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .latest-excerpt {
+    color: var(--text);
+    font-size: 0.85rem;
+    line-height: 1.7;
+    margin-bottom: 0.8rem;
+  }
+
+  .latest-read {
+    display: inline-block;
+    font-size: 0.75rem;
+    color: var(--accent);
+  }
+
+  .posts {
+    padding-top: 2rem;
+    border-top: 1px solid var(--surface);
   }
 
   .year {
