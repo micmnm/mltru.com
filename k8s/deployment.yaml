@@ -13,9 +13,11 @@ spec:
       labels:
         app: mltru-com
     spec:
+      imagePullSecrets:
+        - name: registry-credentials
       containers:
         - name: web
-          image: synology.dala-triceratops.ts.net:6000/mltru-com:latest
+          image: registry.dala-triceratops.ts.net/mltru-com:latest
           ports:
             - containerPort: 80
           volumeMounts:
@@ -30,6 +32,17 @@ spec:
               cpu: "50m"
         - name: vector
           image: timberio/vector:0.43.1-alpine
+          env:
+            - name: OPENOBSERVE_USER
+              valueFrom:
+                secretKeyRef:
+                  name: openobserve-credentials
+                  key: user
+            - name: OPENOBSERVE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: openobserve-credentials
+                  key: password
           volumeMounts:
             - name: logs
               mountPath: /var/log/nginx

@@ -32,6 +32,13 @@ data:
 
     sinks:
       openobserve:
-        type: opentelemetry
+        type: http
         inputs: ["parse_json"]
-        endpoint: http://o2c-openobserve-collector-gateway-collector.openobserve-collector:4318
+        uri: http://openobserve-openobserve-standalone.openobserve:5080/api/default/mltru_nginx/_json
+        method: post
+        encoding:
+          codec: json
+        auth:
+          strategy: basic
+          user: "${OPENOBSERVE_USER}"
+          password: "${OPENOBSERVE_PASSWORD}"
