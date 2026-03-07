@@ -18,6 +18,9 @@ spec:
           image: synology.dala-triceratops.ts.net:6000/mltru-com:latest
           ports:
             - containerPort: 80
+          volumeMounts:
+            - name: logs
+              mountPath: /var/log/nginx
           resources:
             requests:
               memory: "32Mi"
@@ -25,3 +28,24 @@ spec:
             limits:
               memory: "64Mi"
               cpu: "50m"
+        - name: vector
+          image: timberio/vector:0.43.1-alpine
+          volumeMounts:
+            - name: logs
+              mountPath: /var/log/nginx
+              readOnly: true
+            - name: vector-config
+              mountPath: /etc/vector
+          resources:
+            requests:
+              memory: "32Mi"
+              cpu: "10m"
+            limits:
+              memory: "64Mi"
+              cpu: "50m"
+      volumes:
+        - name: logs
+          emptyDir: {}
+        - name: vector-config
+          configMap:
+            name: vector-config
