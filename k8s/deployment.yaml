@@ -30,35 +30,6 @@ spec:
             limits:
               memory: "64Mi"
               cpu: "50m"
-        - name: vector
-          image: timberio/vector:0.43.1-alpine
-          env:
-            - name: OPENOBSERVE_USER
-              valueFrom:
-                secretKeyRef:
-                  name: openobserve-credentials
-                  key: user
-            - name: OPENOBSERVE_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: openobserve-credentials
-                  key: password
-          volumeMounts:
-            - name: logs
-              mountPath: /var/log/nginx
-              readOnly: true
-            - name: vector-config
-              mountPath: /etc/vector
-          resources:
-            requests:
-              memory: "32Mi"
-              cpu: "10m"
-            limits:
-              memory: "64Mi"
-              cpu: "50m"
       volumes:
         - name: logs
           emptyDir: {}
-        - name: vector-config
-          configMap:
-            name: vector-config
