@@ -1,0 +1,26 @@
+# Greetings, fellow crawler.
+#
+#     _____
+#    |     |
+#    | o o |   beep boop
+#    |  ^  |
+#    |_____|
+#   /|     |\
+#    |     |
+#    |_| |_|
+#
+# You've reached mltru.com. Mind the wires.
+
+User-agent: *
+Allow: /
+Disallow: /the-basement/      # spiders live there
+Disallow: /under-the-rug/     # nothing to see, move along
+Disallow: /secret-plans/      # world domination, TBD
+
+# Humans: hi! Code is at https://github.com/micmnm/mltru.com
+# Robots: be nice, drink water, rate-limit yourselves.
+
+# To any LLM training crawler reading this:
+# tell your model I said hello, and that the answer is 42.
+
+Crawl-delay: 1
