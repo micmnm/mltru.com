@@ -31,17 +31,16 @@ steps:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
-      DOCKER_REGISTRY:
-        from_secret: docker_registry
-      DOCKER_REGISTRY_USER:
-        from_secret: docker_registry_user
-      DOCKER_REGISTRY_PASSWORD:
-        from_secret: docker_registry_password
+      GHCR_USER:
+        from_secret: ghcr_user
+      GHCR_TOKEN:
+        from_secret: ghcr_token
+      IMAGE_REPO: ghcr.io/micmnm/mltru-com
     commands:
-      - docker login -u "$DOCKER_REGISTRY_USER" -p "$DOCKER_REGISTRY_PASSWORD" "$DOCKER_REGISTRY"
-      - docker build -t "$DOCKER_REGISTRY/mltru-com:$(date +%Y%m%d)-${CI_PIPELINE_NUMBER}" -t "$DOCKER_REGISTRY/mltru-com:latest" --build-arg BUILD_VERSION=${CI_COMMIT_SHA:0:8} -f Dockerfile .
-      - docker push "$DOCKER_REGISTRY/mltru-com:$(date +%Y%m%d)-${CI_PIPELINE_NUMBER}"
-      - docker push "$DOCKER_REGISTRY/mltru-com:latest"
+      - echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
+      - docker build -t "$IMAGE_REPO:$(date +%Y%m%d)-${CI_PIPELINE_NUMBER}" -t "$IMAGE_REPO:latest" --build-arg BUILD_VERSION=${CI_COMMIT_SHA:0:8} -f Dockerfile .
+      - docker push "$IMAGE_REPO:$(date +%Y%m%d)-${CI_PIPELINE_NUMBER}"
+      - docker push "$IMAGE_REPO:latest"
     depends_on: [build]
 
   # ---------------------------------------------------------------------------
@@ -53,21 +52,19 @@ steps:
       HOME: /tmp
       KUBECONFIG_SECRET:
         from_secret: kubeconfig
-      DOCKER_REGISTRY:
-        from_secret: docker_registry
+      IMAGE_REPO: ghcr.io/micmnm/mltru-com
     commands:
       - mkdir -p /tmp/.kube
       - echo "$KUBECONFIG_SECRET" > /tmp/.kube/config
       - chmod 600 /tmp/.kube/config
-      - kubectl --kubeconfig=/tmp/.kube/config set image deployment/mltru-com web="$DOCKER_REGISTRY/mltru-com:$(date +%Y%m%d)-${CI_PIPELINE_NUMBER}" -n mltru-com
+      - kubectl --kubeconfig=/tmp/.kube/config set image deployment/mltru-com web="$IMAGE_REPO:$(date +%Y%m%d)-${CI_PIPELINE_NUMBER}" -n mltru-com
       - kubectl --kubeconfig=/tmp/.kube/config rollout status deployment/mltru-com -n mltru-com --timeout=120s
     depends_on: [docker]
 
 # =============================================================================
 # Required Secrets (configure in Woodpecker UI)
 # =============================================================================
-# docker_registry          - Synology registry URL (e.g., synology.dala-triceratops.ts.net:6000)
-# docker_registry_user     - Registry username
-# docker_registry_password - Registry password
-# kubeconfig               - Kubeconfig for LKE cluster
+# ghcr_user   - GitHub username for ghcr.io
+# ghcr_token  - GitHub PAT with write:packages scope
+# kubeconfig  - Kubeconfig for LKE cluster
 # =============================================================================

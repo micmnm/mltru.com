@@ -17,7 +17,7 @@ spec:
         - name: registry-credentials
       containers:
         - name: web
-          image: registry.dala-triceratops.ts.net/mltru-com:latest
+          image: ghcr.io/micmnm/mltru-com:latest
           ports:
             - containerPort: 80
           volumeMounts:
