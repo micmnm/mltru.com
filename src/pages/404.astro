@@ -1,0 +1,127 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+
+const posts = await getCollection("posts");
+posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const latest = posts[0];
+const earlier = posts.slice(1, 4);
+
+// Every line is padded to W by row(), so a long post title truncates instead of
+// pushing the right rail out of alignment.
+const W = 52;
+const row = (s = "", tone = "") => ({ text: `│${s.padEnd(W).slice(0, W)}│`, tone });
+const rail = (l: string, m: string, r: string) => ({ text: l + m.repeat(W) + r, tone: "" });
+const fit = (s: string, indent: number) =>
+  s.length > W - indent - 2 ? s.slice(0, W - indent - 3) + "…" : s;
+
+function formatDate(date: Date): string {
+  return date
+    .toLocaleDateString("en-US", { month: "long", year: "numeric" })
+    .toLowerCase();
+}
+
+const navLeft = " mltru";
+const navRight = "posts    about  ";
+const nav = navLeft + " ".repeat(W - navLeft.length - navRight.length) + navRight;
+
+// Fixed ragged pattern rather than random, so the drawing is identical between
+// builds and never shows up as diff noise.
+const paragraph = [
+  "▓▓▓▓▓▓▓▓▓▓▓▓▓▓ ▓▓▓▓▓▓▓ ▓▓▓▓▓▓▓▓▓▓▓ ▓▓▓▓▓▓",
+  "▓▓▓▓▓▓▓ ▓▓▓▓▓▓▓▓▓▓▓▓ ▓▓▓▓ ▓▓▓▓▓▓▓▓▓▓▓▓▓▓",
+  "▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ ▓▓▓▓▓▓▓▓ ▓▓▓",
+];
+
+const frame = [
+  rail("┌", "─", "┐"),
+  row(nav),
+  rail("├", "─", "┤"),
+  row(),
+  row("   ╭───╮"),
+  row("  ( o o )   mircea", "bright"),
+  row("   ╰─┬─╯    still taking things apart"),
+  row(),
+  row(" " + "·".repeat(W - 2) + " "),
+  row(),
+  ...(latest
+    ? [
+        row("  " + fit(latest.data.title.toLowerCase(), 2), "bright"),
+        row("  " + formatDate(latest.data.date)),
+        row(),
+      ]
+    : []),
+  ...paragraph.map((line) => row("  " + line)),
+  row(),
+  row("  earlier"),
+  ...earlier.map((post) => row("   · " + fit(post.data.title.toLowerCase(), 5))),
+  row(),
+  rail("└", "─", "┘"),
+];
+
+const esc = (s: string) =>
+  s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+const drawing = frame
+  .map((line) =>
+    line.tone ? `<span class="${line.tone}">${esc(line.text)}</span>` : esc(line.text),
+  )
+  .join("\n");
+---
+
+<BaseLayout title="404">
+  <div class="lost">
+    <p class="sr-only">
+      404 — that page doesn't exist. Head to the homepage or the posts index.
+    </p>
+    <pre class="drawing" aria-hidden="true" set:html={drawing}></pre>
+    <p class="caption">404 — this is a drawing of the page you wanted.</p>
+    <p class="caption accent">it isn't the page. nothing here is clickable.</p>
+  </div>
+</BaseLayout>
+
+<style>
+  .lost {
+    margin-top: 2rem;
+  }
+
+  .drawing {
+    font-family: 'Fira Code', monospace;
+    /* Holds the 54-char frame inside a 375px viewport without scrolling. */
+    font-size: clamp(0.45rem, 2.2vw, 0.8rem);
+    line-height: 1.15;
+    color: var(--text-muted);
+    background: none;
+    padding: 0;
+    overflow-x: auto;
+    cursor: not-allowed;
+  }
+
+  .drawing .bright {
+    color: var(--text-bright);
+  }
+
+  .caption {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-top: 1.5rem;
+  }
+
+  .caption.accent {
+    color: var(--accent);
+    margin-top: 0.2rem;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+</style>

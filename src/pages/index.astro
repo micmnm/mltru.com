@@ -21,7 +21,9 @@ function stripMarkdown(body: string): string {
 
 function getExcerpt(body: string): string {
   const plain = stripMarkdown(body);
-  const match = plain.match(/[^.!?]*[.!?]/);
+  // Terminator must be followed by a space or end-of-text, so domains like
+  // "mltru.com" don't get read as the end of the sentence.
+  const match = plain.match(/^[\s\S]*?[.!?](?=\s|$)/);
   return match ? match[0].trim() : plain.slice(0, 120);
 }
 
