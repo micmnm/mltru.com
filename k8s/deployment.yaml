@@ -20,9 +20,6 @@ spec:
           image: ghcr.io/micmnm/mltru-com:latest
           ports:
             - containerPort: 80
-          volumeMounts:
-            - name: logs
-              mountPath: /var/log/nginx
           resources:
             requests:
               memory: "32Mi"
@@ -30,6 +27,3 @@ spec:
             limits:
               memory: "64Mi"
               cpu: "50m"
-      volumes:
-        - name: logs
-          emptyDir: {}
