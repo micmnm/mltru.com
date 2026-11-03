@@ -10,7 +10,18 @@
       "Bash(git -C /Users/mircea/Projects/repos/mltru.com status)",
       "Bash(git -C /Users/mircea/Projects/repos/mltru.com add src/pages/posts/)",
       "Bash(git -C:*)",
-      "Bash(git rm:*)"
+      "Bash(git rm:*)",
+      "Bash(/Users/mircea/Projects/repos/mltru.com/public/avatar.svg:*)",
+      "Bash(npm run:*)",
+      "Bash(git push:*)",
+      "WebFetch(domain:mltru.com)",
+      "Bash(curl -sI https://mltru.com/avatar.png)",
+      "Bash(kubectl config:*)",
+      "Bash(kubectl get:*)",
+      "Bash(kubectl describe:*)",
+      "Bash(dotnet test:*)",
+      "Bash(kubectl exec:*)",
+      "Bash(grep:*)"
     ]
   }
 }
