@@ -6,6 +6,10 @@ import sanitizeHtml from "sanitize-html";
 
 const parser = new MarkdownIt();
 
+function absolutize(attribs: Record<string, string>, key: string, site: URL) {
+  return attribs[key] ? { ...attribs, [key]: new URL(attribs[key], site).href } : attribs;
+}
+
 export async function GET(context: APIContext) {
   const posts = await getCollection("posts");
   posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
@@ -23,6 +27,11 @@ export async function GET(context: APIContext) {
         allowedAttributes: {
           ...sanitizeHtml.defaults.allowedAttributes,
           img: ["src", "alt", "title"],
+        },
+        // Feeds have no base URL, so readers can't resolve site-relative links.
+        transformTags: {
+          a: (tagName, attribs) => ({ tagName, attribs: absolutize(attribs, "href", context.site!) }),
+          img: (tagName, attribs) => ({ tagName, attribs: absolutize(attribs, "src", context.site!) }),
         },
       }),
     })),
