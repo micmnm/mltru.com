@@ -41,6 +41,18 @@ const pageTitle = title ? `${title} — ${siteTitle}` : siteTitle;
         <span class="footer-copy">&copy; mircea</span>
       </div>
     </footer>
+    <!-- Guarded: ViewTransitions may re-run inline scripts; count.js only sees full loads, so swaps are counted here. -->
+    <script is:inline>
+      if (!window.goatcounter) {
+        window.goatcounter = { path: (p) => location.host + p };
+        document.addEventListener("astro:after-swap", () => window.goatcounter.count?.());
+        const s = document.createElement("script");
+        s.async = true;
+        s.src = "https://stats.mltru.com/count.js";
+        s.dataset.goatcounter = "https://stats.mltru.com/count";
+        document.head.appendChild(s);
+      }
+    </script>
   </body>
 </html>
 
