@@ -41,10 +41,14 @@ const pageTitle = title ? `${title} — ${siteTitle}` : siteTitle;
         <span class="footer-copy">&copy; mircea</span>
       </div>
     </footer>
-    <!-- Guarded: ViewTransitions may re-run inline scripts; count.js only sees full loads, so swaps are counted here. -->
+    <!-- Guarded: ViewTransitions may re-run inline scripts; count.js only sees full loads, so swaps are counted here.
+         endpoint is set explicitly because the swap drops the injected script[data-goatcounter] count.js looks for. -->
     <script is:inline>
       if (!window.goatcounter) {
-        window.goatcounter = { path: (p) => location.host + p };
+        window.goatcounter = {
+          endpoint: "https://stats.mltru.com/count",
+          path: (p) => location.host + p,
+        };
         document.addEventListener("astro:after-swap", () => window.goatcounter.count?.());
         const s = document.createElement("script");
         s.async = true;
