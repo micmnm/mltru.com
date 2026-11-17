@@ -1,74 +1,147 @@
-/* Fonts: Space Grotesk for headings, IBM Plex Mono for body */
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Fira+Code:wght@400;500&display=swap');
+/* Sticker sheet: die-cut vinyl stickers on a green cutting mat. Caprasimo display/titles, Commissioner UI, Recursive article body. */
+@import url('https://fonts.googleapis.com/css2?family=Commissioner:FLAR,wght@0..100,400;0..100,700;0..100,900&family=Caprasimo&family=Recursive:CASL,MONO,wght@0..1,0..1,400..700&display=swap');
 
+/* The mat is the one colour sticker stock never uses, so every sticker colour pops off it. */
 :root {
-  --bg: #2b2b2b;
-  --surface: #363636;
-  --text: #d8d8d8;
-  --text-bright: #ececec;
-  --accent: #7ab8b0;
-  --accent-hover: #9ad0c8;
-  --text-muted: #888;
-  --font-heading: 'Space Grotesk', system-ui, sans-serif;
-  --font-body: 'Libre Baskerville', Georgia, serif;
+  --mat: #2F5D50; --ink: #14201C; --cream: #FFF7E0; --white: #fff; --muted: #4A524D;
+  --tomato: #F4604A; --sunflower: #FFC928; --sky: #5DBBEA; --bubblegum: #FF92C2; --mint: #8CE0BC;
+  --metal: #D5DADC; --gold: #E4B93C;
+  --ow: 2.5px; --sh: rgba(7, 24, 19, .4);
+  --font-body: 'Commissioner', system-ui, sans-serif;
+  --font-heading: var(--font-body);
+  /* display = "mircea"; title = titles + h2/h3. --ts scales title sizes, --d-* tune the name sticker, --st/--halo are its ink and white stroke widths. */
+  --font-display: 'Caprasimo', Georgia, serif; --font-title: 'Caprasimo', Georgia, serif;
+  --t-wt: 400; --t-ls: -.005em; --t-lh: 1.15; --t-fv: normal; --ts: 1;
+  --d-size: clamp(2.8rem, 9vw, 4rem); --d-ls: 0; --d-lh: 1.05; --st: 7px; --halo: 18px;
+  /* article body font (Recursive, softened) and code (Recursive mono) */
+  --pf: 'Recursive', system-ui, sans-serif; --pfv: "CASL" .5, "MONO" 0; --ps: 1.08rem; --plh: 1.7;
+  --cf: 'Recursive', ui-monospace, monospace; --cfv: "MONO" 1, "CASL" 0;
+  --pop: cubic-bezier(.34, 1.7, .5, 1);
+  /* vinyl grain: very low-alpha speckle tile, and a short slanted scuff mark */
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .55 -.2'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
+  --scuffimg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='7'%3E%3Cpath d='M1 6 L25 1' stroke='%23fff' stroke-opacity='.5' stroke-width='1' stroke-linecap='round'/%3E%3C/svg%3E");
 }
 
-*, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-html {
-  font-size: 18px;
-}
+html { font-size: 18px; scroll-behavior: smooth; }
 
 body {
-  font-family: var(--font-body);
-  background-color: var(--bg);
-  color: var(--text);
-  line-height: 1.7;
-  min-height: 100vh;
+  background-color: var(--mat);
+  background-image:
+    linear-gradient(rgba(255,255,255,.17) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.17) 1px, transparent 1px),
+    linear-gradient(rgba(255,255,255,.07) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.07) 1px, transparent 1px);
+  background-size: 160px 160px, 160px 160px, 32px 32px, 32px 32px;
+  color: var(--ink); font-family: var(--font-body); font-weight: 400; line-height: 1.7; min-height: 100vh;
 }
 
-h1, h2, h3, h4 {
-  font-family: var(--font-heading);
-  color: var(--text-bright);
-  line-height: 1.3;
-}
 
-a {
-  color: var(--accent);
-  text-decoration: none;
-}
+h1, h2, h3, h4, .post-title, .section-label { font-family: var(--font-title); font-weight: var(--t-wt); letter-spacing: var(--t-ls); font-variation-settings: var(--t-fv); line-height: var(--t-lh); color: var(--ink); overflow-wrap: break-word; }
+a { color: inherit; text-decoration: none; }
+img { max-width: 100%; height: auto; }
+code { font-family: var(--cf); font-variation-settings: var(--cfv); font-size: .9em; }
+:focus-visible { outline: 3px solid var(--sunflower); outline-offset: 8px; }
 
-a:hover {
-  color: var(--accent-hover);
-  text-decoration: underline;
+/* ---- the sticker recipe ----
+   element = text box; ::before = hand-cut white backing (wobbly edge, uneven margin, hard shadow);
+   ::after = colour fill + ink outline, the fill nudged by --mx/--my (misregistration), with grain and an optional scuff.
+   Per-sticker --rot --dt/--dr/--db/--dl --br --wob --mx --my --scuff --peel come from sk() in src/lib/sticker.ts. */
+.st { position: relative; isolation: isolate; transform: rotate(var(--rot, 0deg)); color: var(--ink); border-radius: var(--br, 12px); }
+.st::before, .st::after { content: ""; position: absolute; pointer-events: none; border-radius: var(--br, 12px); }
+.st::before {
+  z-index: -2; inset: calc(-1 * var(--dt, 6px)) calc(-1 * var(--dr, 6px)) calc(-1 * var(--db, 6px)) calc(-1 * var(--dl, 6px));
+  background: var(--back, var(--white)); border: var(--backline, 0); filter: var(--wob, none);
+  box-shadow: var(--lift, 3px) calc(var(--lift, 3px) + 1px) 0 var(--sh); transition: box-shadow .25s var(--pop);
 }
-
-img {
-  max-width: 100%;
-  height: auto;
+.st::after {
+  z-index: -1; inset: 0; border: var(--ow) solid var(--ink);
+  background:
+    var(--scuff, linear-gradient(#0000, #0000) 0 0 / 0 0 no-repeat border-box),
+    var(--grain) 0 0 / 140px 140px repeat border-box,
+    linear-gradient(var(--c, var(--sky)), var(--c, var(--sky))) calc(50% + var(--mx, 0px)) calc(50% + var(--my, 0px)) / calc(100% - 2 * var(--ow) + 1px) calc(100% - 2 * var(--ow) + 1px) no-repeat border-box;
 }
+.label { font-weight: 700; font-variation-settings: "FLAR" 60; }
 
-code {
-  font-family: var(--font-body);
-  background: var(--surface);
-  padding: 0.15em 0.3em;
-  border-radius: 3px;
-  font-size: 0.9em;
+/* stickers you can poke: hop up on hover, press down on click */
+.hop { transition: transform .25s var(--pop); }
+.hop:is(:hover, :focus-visible) { --lift: 7px; transform: translate(-2px, -4px) rotate(var(--rot, 0deg)); text-decoration: none; }
+.hop:active { --lift: 1px; transform: translate(1px, 1px) rotate(var(--rot, 0deg)); transition-duration: .06s; }
+
+.pill-date { display: inline-block; --c: var(--mint); font-size: .85rem; padding: .2rem .8rem; margin: .3rem 0 1.4rem; }
+.btn { display: inline-block; --c: var(--sunflower); font-size: .95rem; padding: .45rem 1.1rem; }
+.btn.mint { --c: var(--mint); }
+.section-label { display: inline-block; --c: var(--cream); font-size: calc(1.15rem * var(--ts)); padding: .25rem .9rem; margin: 0 0 1.6rem .6rem; }
+
+/* ---- tiles: rectangular stickers; the li carries the tilt, the peelable corner and the hover hop ---- */
+.tiles { list-style: none; display: grid; gap: 1.8rem; }
+.tile { position: relative; --c: var(--tomato); transform: rotate(var(--rot, 0deg)); transition: transform .25s var(--pop); }
+.tile:nth-child(4n+2) { --c: var(--sky); }
+.tile:nth-child(4n+3) { --c: var(--sunflower); }
+.tile:nth-child(4n+4) { --c: var(--bubblegum); }
+.tile > .st { display: block; transform: none; padding: 1.1rem 1.5rem 1.25rem; }
+.tile:is(:hover, :focus-within) { --lift: 7px; transform: translate(-2px, -4px) rotate(var(--rot, 0deg)); }
+.tile:active { --lift: 1px; transform: translate(1px, 1px) rotate(var(--rot, 0deg)); transition-duration: .06s; }
+.tile::after { /* cut-away corner (mat) beside the folded flap showing the white backing */
+  content: ""; position: absolute; right: calc(-1 * var(--dr, 6px)); bottom: calc(-1 * var(--db, 6px)); width: var(--peel, 0px); height: var(--peel, 0px);
+  background: linear-gradient(135deg, var(--white) 0 calc(50% - 1.3px), var(--ink) calc(50% - 1.3px) calc(50% + 1.3px), var(--mat) calc(50% + 1.3px));
+  transition: width .25s var(--pop), height .25s var(--pop); pointer-events: none;
 }
+.tile:is(:hover, :focus-within)::after { width: 38px; height: 38px; }
+.post-title { display: block; font-size: calc(1.25rem * var(--ts)); }
+.post-excerpt { display: block; font-size: 1rem; line-height: 1.5; margin-top: .35rem; }
+.dir { display: block; font-size: .8rem; margin-bottom: .3rem; font-weight: 700; font-variation-settings: "FLAR" 60; }
 
-pre {
-  background: var(--surface);
-  padding: 1rem;
-  border-radius: 4px;
-  overflow-x: auto;
-  line-height: 1.4;
+/* ---- reading card: calm cream label. Only its backing edge is irregular (clip-path polygon, no filter on a big element). ---- */
+.card { position: relative; isolation: isolate; margin: .9rem 0 3.5rem; transform: rotate(var(--rot, 0deg)); }
+.card::before, .card::after {
+  content: ""; position: absolute; z-index: -1; pointer-events: none; clip-path: var(--poly);
+  inset: calc(-1 * var(--dt, 8px)) calc(-1 * var(--dr, 8px)) calc(-1 * var(--db, 8px)) calc(-1 * var(--dl, 8px));
 }
+.card::before { background: var(--sh); transform: translate(5px, 6px); }
+.card::after { background: var(--white); }
+.card-face { position: relative; background: var(--cream); border: var(--ow) solid var(--ink); border-radius: var(--br, 14px); padding: 2.2rem 2.4rem 2.4rem; }
 
-pre code {
-  background: none;
-  padding: 0;
+.prose, .post-excerpt, .latest-excerpt { font-family: var(--pf); font-variation-settings: var(--pfv); }
+.prose { font-size: var(--ps); line-height: var(--plh); max-width: 68ch; color: #1B2420; overflow-wrap: break-word; }
+.post-excerpt, .latest-excerpt { font-size: max(1rem, calc(var(--ps) * .94)); }
+.prose > * + * { margin-top: 1.1rem; }
+.prose p { margin: 0 0 1.1rem; }
+.prose h2, .prose h3 { margin: 2.3rem 0 .7rem; }
+.prose h2 { font-size: calc(1.55rem * var(--ts)); background: linear-gradient(var(--sunflower), var(--sunflower)) 0 100% / 3.2rem 6px no-repeat; padding-bottom: .5rem; }
+.prose h3 { font-size: calc(1.2rem * var(--ts)); margin-bottom: 1rem; }
+.prose a { font-weight: 700; text-decoration: underline; text-decoration-thickness: 3px; text-underline-offset: 3px; text-decoration-color: var(--sky); }
+.prose a:hover, .prose a:focus-visible { background: var(--sky); text-decoration-color: transparent; border-radius: 3px; }
+.prose code { background: #F6E9B8; border: 1.5px solid var(--ink); border-radius: 5px; padding: .05em .35em; font-size: .86em; box-decoration-break: clone; }
+.prose pre { background: var(--ink); color: var(--cream); border-radius: 10px; padding: 1.1rem 1.3rem; overflow-x: auto; line-height: 1.55; font-size: .92rem; font-family: var(--cf); font-variation-settings: var(--cfv); }
+.prose pre code { background: none; border: 0; color: inherit; padding: 0; font-size: inherit; }
+.prose ul, .prose ol { padding-left: 1.5rem; margin: 0 0 1.1rem; }
+.prose li { margin-bottom: .35rem; }
+.prose li::marker { color: var(--tomato); font-weight: 700; }
+.prose blockquote { margin: 1.4rem 0; padding: .8rem 1.3rem; background: #FFE6F0; border: 2px solid var(--ink); border-left-width: 9px; border-radius: 4px 12px 12px 4px; }
+.prose blockquote p:last-child { margin-bottom: 0; }
+.prose img { display: block; max-width: 100%; height: auto; border: 2px solid var(--ink); border-radius: 8px; margin: 1.4rem 0; }
+.prose hr { border: 0; border-top: 3px dotted var(--ink); margin: 2rem 0; }
+
+/* a sticker cluster (hero toy + name + bubble) slapped over the card's top edge: pull the card up under it, pad the card's first line clear */
+.lap { margin-bottom: -2.8rem; }
+.lap + .card .card-face { padding-top: 4.8rem; }
+
+/* the toy is the logo: hero on home (in .intro), small in the nav everywhere else */
+nav > .toy { position: relative; z-index: 4; width: 4.6rem; margin: 0 0 -1.4rem; }
+nav:not([data-home]) { margin-top: 1rem; }
+nav:not([data-home]) .nav-links { margin-top: .5rem; }
+nav:not([data-home]) ~ main .card-face { padding-top: 3rem; }
+main > .page-title { margin-top: 1.9rem; }
+@media (max-width: 520px) {
+  nav > .toy { width: 3.6rem; margin: 0 0 -1rem; }
+  nav:not([data-home]) ~ main .card-face { padding-top: 2.2rem; }
+  .lap { margin-bottom: -1.6rem; }
+  .lap + .card .card-face { padding-top: 2.6rem; }
+  .card-face { padding: 1.5rem 1.2rem 1.7rem; }
+  .prose blockquote { padding: .7rem .9rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { transition-duration: .01s !important; animation: none !important; }
+  .hop:is(:hover, :focus-visible), .tile:is(:hover, :focus-within) { transform: rotate(var(--rot, 0deg)) !important; }
 }

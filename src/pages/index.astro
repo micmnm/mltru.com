@@ -1,5 +1,7 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import Bobblehead from "../components/Bobblehead.astro";
+import { sk, card } from "../lib/sticker";
 import { getCollection, render } from "astro:content";
 
 const posts = await getCollection("posts");
@@ -9,6 +11,9 @@ const latestPost = posts[0];
 const olderPosts = posts.slice(1, 5);
 
 const { Content } = latestPost ? await render(latestPost) : { Content: null };
+
+// speech bubble outline, tail on the left toward the toy
+const BL = "M40 6 H240 Q258 6 258 24 V40 Q258 58 240 58 H40 Q22 58 22 44 L3 55 L22 26 Q22 6 40 6Z";
 
 function stripMarkdown(body: string): string {
   return body
@@ -32,32 +37,33 @@ function formatDate(date: Date): string {
 }
 ---
 
-<BaseLayout>
-  <header class="intro">
-    <img src="/avatar.png" alt="" class="avatar" transition:name="avatar" />
+<BaseLayout home>
+  <header class="intro lap">
+    <Bobblehead size="hero" />
     <div class="intro-text">
-      <h1 transition:name="intro-name">mircea</h1>
-      <p class="tagline" transition:name="intro-tagline">still taking things apart</p>
+      <h1 data-t="mircea">mircea</h1>
+      <p class="bubble"><svg class="bb bb-l" viewBox="0 0 260 64" aria-hidden="true"><path class="bh" d={BL} /><path class="bf" d={BL} /><path class="bg" d={BL} /><path class="bi" d={BL} /></svg><span>still taking things apart</span></p>
     </div>
   </header>
 
+
   {latestPost && Content && (
-    <article class="latest">
+    <article class="card" style={card(latestPost.id)}><div class="card-face">
       <h2 class="latest-title"><a href={`/posts/${latestPost.id}/`} class="latest-title-link">{latestPost.data.title}</a></h2>
-      <time class="latest-date" datetime={latestPost.data.date.toISOString()}>{formatDate(latestPost.data.date)}</time>
-      <div class="latest-content">
+      <time class="pill-date st label" style={sk("date:" + latestPost.id, { rot: -2, die: 4, radius: 40, mis: 0.7 })} datetime={latestPost.data.date.toISOString()}>{formatDate(latestPost.data.date)}</time>
+      <div class="prose">
         <Content />
       </div>
-    </article>
+    </div></article>
   )}
 
   {olderPosts.length > 0 && (
     <section class="older">
-      <h3 class="section-label">earlier</h3>
-      <ul>
-        {olderPosts.map((post) => (
-          <li>
-            <a href={`/posts/${post.id}/`}>
+      <h3 class="section-label st label" style={sk("earlier", { rot: -2, die: 3.5, radius: 40, mis: 1 })}>earlier</h3>
+      <ul class="tiles">
+        {olderPosts.map((post, i) => (
+          <li class="tile" style={sk(post.id, { rot: [-1.4, 1.1, -0.7, 1.6][i % 4], radius: 10, mis: 0.55, scuff: 0.3, peel: 0.35 })}>
+            <a href={`/posts/${post.id}/`} class="st">
               <span class="post-title">{post.data.title}</span>
               <span class="post-excerpt">{getExcerpt(post.body ?? "")}</span>
             </a>
@@ -68,132 +74,30 @@ function formatDate(date: Date): string {
   )}
 </BaseLayout>
 
+
 <style>
-  .intro {
-    margin: 1rem 0 1.5rem;
-    padding-bottom: 1.5rem;
-    border-bottom: 1px solid var(--surface);
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-  }
-
-  .avatar {
-    width: 5rem;
-    height: 5rem;
-    border-radius: 50%;
-    flex-shrink: 0;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.2);
-  }
-
-  .intro h1 {
-    font-size: 1.2rem;
-    margin-bottom: 0.05rem;
-    line-height: 1.2;
-  }
-
-  .tagline {
-    font-family: 'Fira Code', monospace;
-    color: var(--text-muted);
-    font-size: 0.72rem;
-  }
-
-  .latest {
-    margin: 2rem 0 3rem;
-  }
-
-  .latest-title {
-    font-size: 1.4rem;
-    margin-bottom: 0.3rem;
-  }
-
-  .latest-title-link {
-    color: var(--text-bright);
-    text-decoration: none;
-    transition: color 0.2s;
-  }
-
-  .latest-title-link:hover {
-    color: var(--accent);
-    text-decoration: none;
-  }
-
-  .latest-title-link:active {
-    animation: pulse 0.3s ease-out;
-  }
-
-  @keyframes pulse {
-    0% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.7; transform: scale(0.98); }
-    100% { opacity: 1; transform: scale(1); }
-  }
-
-  .latest-date {
-    display: block;
-    font-family: var(--font-heading);
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    margin-bottom: 1.5rem;
-  }
-
-  .latest-content {
-    font-size: 0.95rem;
-    line-height: 1.8;
-  }
-
-  .latest-content :global(p) {
-    margin-bottom: 1rem;
-  }
-
-  .section-label {
-    font-size: 0.7rem;
-    color: var(--text-muted);
-    text-transform: lowercase;
-    letter-spacing: 0.1em;
-    font-weight: 400;
-    margin-bottom: 1rem;
-  }
-
-  .older {
-    margin-top: 3rem;
-    padding-top: 2rem;
-    border-top: 1px solid var(--surface);
-  }
-
-  ul {
-    list-style: none;
-  }
-
-  li {
-    margin-bottom: 0.8rem;
-  }
-
-  li a {
-    display: block;
-    padding: 0.4rem 0;
-  }
-
-  li a:hover {
-    text-decoration: none;
-  }
-
-  li a:hover .post-title {
-    color: var(--accent);
-  }
-
-  .post-title {
-    display: block;
-    font-family: var(--font-heading);
-    color: var(--text-bright);
-    font-size: 0.9rem;
-    font-weight: 500;
-  }
-
-  .post-excerpt {
-    display: block;
-    color: var(--text-muted);
-    font-size: 0.78rem;
-    margin-top: 0.15rem;
-  }
+/* ---- intro: bobblehead + name + bubble, one cluster stuck over the card's top edge (.lap) ---- */
+.intro { display: flex; align-items: flex-start; justify-content: flex-start; gap: 1.2rem; margin-top: -2.9rem; padding: 0 0 0 .3rem; }
+.intro :global(.toy) { z-index: 4; }
+.intro-text { display: flex; flex-direction: column; align-items: flex-start; gap: 1.1rem; padding: .6rem 0 0; z-index: 3; }
+.intro h1 { position: relative; isolation: isolate; display: inline-block; font-family: var(--font-display); font-weight: 400; letter-spacing: var(--d-ls); font-variation-settings: normal; font-size: var(--d-size); line-height: var(--d-lh); color: var(--sunflower); -webkit-text-stroke: var(--st) var(--ink); paint-order: stroke fill; stroke-linejoin: round; margin: 0; transform: rotate(-2.5deg); filter: drop-shadow(4px 5px 0 rgba(7,24,19,.4)); }
+.intro h1::before { content: attr(data-t); position: absolute; inset: 0; z-index: -1; -webkit-text-stroke: var(--halo) #fff; paint-order: stroke fill; color: #fff; stroke-linejoin: round; }
+.bubble { position: relative; display: block; width: 260px; height: 64px; margin: 0; font-weight: 700; font-variation-settings: "FLAR" 60; font-size: 1.05rem; color: var(--ink); transform: rotate(1.5deg); filter: drop-shadow(4px 4px 0 rgba(7,24,19,.4)); }
+.bubble .bb { position: absolute; inset: 0; width: 260px; height: 64px; overflow: visible; }
+.bubble .bh { fill: #fff; stroke: #fff; stroke-width: 19px; stroke-linejoin: round; filter: url(#wob3); }
+.bubble .bf { fill: var(--bubblegum); transform: translate(-.9px, .8px) scale(.985); transform-origin: 140px 32px; }
+.bubble .bg { fill: url(#grain); }
+.bubble .bi { fill: none; stroke: var(--ink); stroke-width: 2.5px; stroke-linejoin: round; }
+.bubble span { position: absolute; left: 22px; width: 236px; top: 6px; height: 52px; line-height: 52px; text-align: center; }
+.latest-title { font-size: calc(clamp(1.7rem, 5vw, 2.3rem) * var(--ts)); margin: 0 0 .6rem; }
+.latest-title-link { background: linear-gradient(var(--sunflower), var(--sunflower)) 0 92% / 0 .3em no-repeat; transition: background-size .3s var(--pop); }
+.latest-title-link:hover, .latest-title-link:focus-visible { background-size: 100% .3em; }
+@media (max-width: 520px) {
+  .intro { gap: .7rem; margin-top: -2.1rem; padding: 0; }
+  .intro :global(.toy--hero) { width: 4.4rem; }
+  .intro-text { gap: .3rem; padding-top: 2.3rem; }
+  .intro h1 { --d-size: 2.3rem; --st: 5px; --halo: 13px; }
+  /* same bubble, scaled down; negative margins give back the layout space the scale frees */
+  .bubble { transform: rotate(1.5deg) scale(.7); transform-origin: 0 0; margin: 0 -78px -19px 0; }
+}
 </style>

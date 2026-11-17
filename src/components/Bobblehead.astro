@@ -1,0 +1,146 @@
+---
+interface Props { size?: "hero" | "small"; href?: string; label?: string }
+const { size = "hero", href, label } = Astro.props;
+const k = `bh-${size}${href ? "-link" : ""}`;
+const Tag = href ? "a" : "div";
+const CX = 100, CY = 85, R = 62, RI = 52;
+
+// flat coil: a helix, back half-turns darker and drawn first, same stroke weights everywhere
+const TURNS = 3, TOP = 146, BOT = 208, SR = 28, SE = 9;
+const helix = (t0: number, t1: number) => {
+  const pts: string[] = [];
+  for (let i = 0; i <= 14; i++) {
+    const t = t0 + ((t1 - t0) * i) / 14;
+    const x = 100 + SR * Math.cos(t), y = TOP + ((BOT - TOP) * t) / (2 * Math.PI * TURNS) + SE * Math.sin(t);
+    pts.push(`${i ? "L" : "M"}${x.toFixed(1)} ${y.toFixed(1)}`);
+  }
+  return pts.join("");
+};
+const front: string[] = [], back: string[] = [];
+for (let n = 0; n < TURNS; n++) {
+  front.push(helix(2 * Math.PI * n, 2 * Math.PI * n + Math.PI));
+  back.push(helix(2 * Math.PI * n + Math.PI, 2 * Math.PI * (n + 1)));
+}
+const frontD = front.join(""), backD = back.join(""), allD = backD + frontD;
+const BASE = "M38 224 Q38 206 58 206 H142 Q162 206 162 224 Q162 240 142 240 H58 Q38 240 38 224Z";
+const dots = Array.from({ length: 12 }, (_, i) => {
+  const a = (i / 12) * 2 * Math.PI, r = (R + RI) / 2;
+  return [(CX + r * Math.cos(a)).toFixed(1), (CY + r * Math.sin(a)).toFixed(1)];
+});
+---
+
+<Tag class={`toy toy--${size}`} data-toy data-size={size} href={href} role={href ? undefined : "button"} tabindex={href ? undefined : 0} aria-label={label ?? "Bobble the head"}>
+  <svg viewBox="0 0 200 262" aria-hidden="true" focusable="false">
+    <defs><clipPath id={`${k}-av`}><circle cx={CX} cy={CY} r={RI - 1} /></clipPath></defs>
+
+    <!-- die-cut border: one white halo per moving part (edge wobbled by the shared filter), all under the artwork so the sticker reads as a single silhouette -->
+    <g data-part="spring"><path d={allD} class="halo-l" /></g>
+    <path d={BASE} class="halo" />
+    <g data-part="head"><circle cx={CX} cy={CY} r={R} class="halo" /></g>
+
+    <g data-part="spring">
+      <path d={backD} class="w-ink" /><path d={backD} class="w-col w-dark" />
+      <path d={frontD} class="w-ink" /><path d={frontD} class="w-col" />
+    </g>
+
+    <g>
+      <g transform="translate(100 223) translate(-.9 .8) scale(.97 .88) translate(-100 -223)"><path d={BASE} fill="#F4604A" /><path d={BASE} fill="url(#grain)" /></g>
+      <path d={BASE} class="ink" fill="none" />
+      <path d="M50 216 Q100 211 150 216" class="stripe" />
+      <text x="100" y="233" class="fine" text-anchor="middle">mltru</text>
+    </g>
+
+    <g data-part="head">
+      <circle cx={CX} cy={CY} r={R - 1.8} fill="#FFC928" transform="translate(1.1 -.9)" /><circle cx={CX} cy={CY} r={R - 1.8} fill="url(#grain)" transform="translate(1.1 -.9)" />
+      <circle cx={CX} cy={CY} r={R} class="ink" fill="none" />
+      {dots.map(([x, y]) => <circle cx={x} cy={y} r="1.9" fill="#14201C" />)}
+      <circle cx={CX} cy={CY} r={RI} class="ink" fill="#FFF7E0" />
+      <image href="/avatar.png" x={CX - RI} y={CY - RI} width={RI * 2} height={RI * 2} preserveAspectRatio="xMidYMid slice" clip-path={`url(#${k}-av)`} />
+      <circle cx={CX} cy={CY} r={RI} fill="none" class="ink" />
+    </g>
+  </svg>
+</Tag>
+
+<style is:global>
+  .toy { --ow: 2.6px; --si: 10px; --sc: 5.2px; --hd: 7px; position: relative; flex-shrink: 0; touch-action: manipulation; -webkit-tap-highlight-color: transparent; user-select: none; cursor: pointer; border-radius: 18px; filter: drop-shadow(4px 5px 0 rgba(7, 24, 19, .4)); }
+  .toy--hero { width: 11rem; }
+  .toy--small { --ow: 4.6px; --si: 12px; --sc: 5.6px; --hd: 11px; width: 5.2rem; filter: drop-shadow(3px 3px 0 rgba(7, 24, 19, .4)); }
+  .toy svg { display: block; width: 100%; height: auto; overflow: visible; transform: rotate(-2deg); transform-origin: 50% 90%; }
+  .toy .ink { stroke: #14201C; stroke-width: var(--ow); stroke-linejoin: round; }
+  .toy .halo { filter: url(#wob2); fill: #fff; stroke: #fff; stroke-linejoin: round; stroke-width: calc(var(--ow) + 2 * var(--hd)); }
+  .toy .halo-l { filter: url(#wob1); fill: none; stroke: #fff; stroke-linecap: round; stroke-linejoin: round; stroke-width: calc(var(--si) + 2 * var(--hd)); }
+  .toy .w-ink, .toy .w-col { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .toy .w-ink { stroke: #14201C; stroke-width: var(--si); }
+  .toy .w-col { stroke: #5DBBEA; stroke-width: var(--sc); }
+  .toy .w-dark { stroke: #2F8DBD; }
+  .toy .stripe { fill: none; stroke: #FFF7E0; stroke-width: 3.2; stroke-linecap: round; }
+  .toy .fine { font-family: var(--font-heading); font-size: 13px; fill: #FFF7E0; }
+  .toy--small .fine, .toy--small .stripe { display: none; }
+</style>
+
+<script>
+  const PIVOT = 147, BASE = 210, LEN = BASE - PIVOT;
+  document.addEventListener("astro:page-load", () => {
+    // window listener outlives page swaps: drop the previous one
+    (window as any).__toyAbort?.abort();
+    const ac = new AbortController();
+    (window as any).__toyAbort = ac;
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (reduce) return;
+
+    const heroes: { el: HTMLElement; kick: (dir: number, power: number) => void }[] = [];
+    document.querySelectorAll<HTMLElement>("[data-toy]:not([data-bound])").forEach((toy) => {
+      toy.dataset.bound = "1";
+      const svg = toy.querySelector("svg")!;
+      const heads = [...toy.querySelectorAll("[data-part=head]")];
+      const springs = [...toy.querySelectorAll("[data-part=spring]")];
+      const set = (nodes: Element[], v: string | null) => nodes.forEach((n) => (v === null ? n.removeAttribute("transform") : n.setAttribute("transform", v)));
+      // one damped-spring state drives head, coil (and halos) and a little whole-sticker wiggle: rotation a, sway x, bounce y
+      let a = 0, av = 0, x = 0, xv = 0, y = 0, yv = 0, run = false, last = 0;
+      const apply = () => {
+        const dx = x + LEN * Math.tan((a * 0.4 * Math.PI) / 180);
+        const sy = Math.max(0.5, 1 - y / LEN);
+        const skew = (-Math.atan(dx / (LEN * sy)) * 180) / Math.PI;
+        set(heads, `translate(${dx} ${y}) rotate(${a} 100 ${PIVOT})`);
+        set(springs, `translate(100 ${BASE}) skewX(${skew}) scale(1 ${sy}) translate(-100 ${-BASE})`);
+        svg.style.transform = `rotate(${-2 + a * 0.12}deg)`;
+      };
+      const frame = (now: number) => {
+        const dt = Math.min((now - last) / 1000, 0.032); last = now;
+        av += (-120 * a - 4.2 * av) * dt; a += av * dt;
+        xv += (-120 * x - 4.2 * xv) * dt; x += xv * dt;
+        yv += (-200 * y - 5 * yv) * dt; y += yv * dt;
+        apply();
+        if (Math.abs(a) + Math.abs(av) + Math.abs(x) + Math.abs(xv) + Math.abs(y) + Math.abs(yv) > 0.4) requestAnimationFrame(frame);
+        else { run = false; set(heads, null); set(springs, null); svg.style.transform = ""; }
+      };
+      const kick = (dir = 1, power = 1, bounce = 0) => {
+        av += 160 * dir * power; xv += 6 * dir * power; yv -= bounce;
+        if (!run) { run = true; last = performance.now(); requestAnimationFrame(frame); }
+      };
+      const rnd = () => (Math.random() < 0.5 ? -1 : 1);
+      toy.addEventListener("pointerenter", () => kick(rnd()));
+      toy.addEventListener("click", () => kick(rnd(), 1.4, 150));
+      toy.addEventListener("focus", () => kick());
+      toy.addEventListener("keydown", (e) => {
+        if (toy.tagName !== "A" && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); kick(rnd(), 1.4, 150); }
+      });
+      if (toy.dataset.size === "hero") { kick(1, 0.7); heroes.push({ el: toy, kick }); }
+    });
+
+    if (!heroes.length) return;
+    let px = 0, lt = 0, cool = 0;
+    window.addEventListener("pointermove", (e) => {
+      const v = Math.abs(e.clientX - px) / Math.max(e.timeStamp - lt, 1);
+      px = e.clientX; lt = e.timeStamp;
+      if (v < 1.6 || e.timeStamp - cool < 700) return;
+      for (const h of heroes) {
+        const r = h.el.getBoundingClientRect();
+        if (Math.hypot(e.clientX - (r.left + r.width / 2), e.clientY - (r.top + r.height / 2)) < 220) {
+          cool = e.timeStamp; h.kick(e.movementX >= 0 ? 1 : -1, 0.6);
+        }
+      }
+    }, { passive: true, signal: ac.signal });
+  });
+</script>

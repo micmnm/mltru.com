@@ -1,12 +1,15 @@
 ---
 import "../styles/global.css";
 import { ViewTransitions } from "astro:transitions";
+import { sk } from "../lib/sticker";
+import Bobblehead from "../components/Bobblehead.astro";
 
 interface Props {
   title?: string;
+  home?: boolean; // front page: the hero toy (in the page) is the logo, so no nav toy
 }
 
-const { title } = Astro.props;
+const { title, home = false } = Astro.props;
 const siteTitle = "mltru";
 const pageTitle = title ? `${title} — ${siteTitle}` : siteTitle;
 ---
@@ -21,11 +24,21 @@ const pageTitle = title ? `${title} — ${siteTitle}` : siteTitle;
     <ViewTransitions />
   </head>
   <body>
-    <nav>
-      <a href="/" class="nav-title">{siteTitle}</a>
+    <!-- hand-cut edge wobble (three seeds, rotated across stickers) and vinyl grain; referenced by url(#id), never applied to text -->
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+      <defs>
+        <filter id="wob1" x="-30%" y="-50%" width="160%" height="200%"><feTurbulence type="fractalNoise" baseFrequency=".045" numOctaves="2" seed="3" result="n" /><feDisplacementMap in="SourceGraphic" in2="n" scale="3.5" xChannelSelector="R" yChannelSelector="G" /></filter>
+        <filter id="wob2" x="-30%" y="-50%" width="160%" height="200%"><feTurbulence type="fractalNoise" baseFrequency=".035" numOctaves="2" seed="11" result="n" /><feDisplacementMap in="SourceGraphic" in2="n" scale="4" xChannelSelector="R" yChannelSelector="G" /></filter>
+        <filter id="wob3" x="-30%" y="-50%" width="160%" height="200%"><feTurbulence type="fractalNoise" baseFrequency=".06" numOctaves="2" seed="27" result="n" /><feDisplacementMap in="SourceGraphic" in2="n" scale="3" xChannelSelector="R" yChannelSelector="G" /></filter>
+        <filter id="grainf" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" stitchTiles="stitch" /><feColorMatrix values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .55 -.2" /></filter>
+        <pattern id="grain" width="140" height="140" patternUnits="userSpaceOnUse"><rect width="140" height="140" filter="url(#grainf)" opacity=".35" /></pattern>
+      </defs>
+    </svg>
+    <nav data-home={home || undefined}>
+      {!home && <Bobblehead size="small" href="/" label="mltru, home" />}
       <div class="nav-links">
-        <a href="/posts">posts</a>
-        <a href="/about">about</a>
+        <a href="/posts" class="nav-s st hop label" style={sk("nav-posts", { rot: 1.6, die: 5, radius: 13, mis: 0.6, scuff: 0.5 })}>posts</a>
+        <a href="/about" class="nav-s st hop label bubblegum" style={sk("nav-about", { rot: -1.4, die: 5, radius: 13, mis: 0.6 })}>about</a>
       </div>
     </nav>
     <main>
@@ -34,11 +47,10 @@ const pageTitle = title ? `${title} — ${siteTitle}` : siteTitle;
     <footer class="site-footer">
       <div class="footer-inner">
         <div class="footer-links">
-          <a href="https://github.com/micmnm/" target="_blank">github</a>
-          <a href="https://www.linkedin.com/in/mircea-militaru-97201218/" target="_blank">linkedin</a>
-          <a href="/rss.xml">rss</a>
+          <a href="https://github.com/micmnm/" target="_blank" class="pin st hop label" style={sk("pin-gh", { rot: -1.5, die: 4.5, radius: 12, mis: 0.8 })}>github</a>
+          <a href="https://www.linkedin.com/in/mircea-militaru-97201218/" target="_blank" class="pin st hop label bubblegum" style={sk("pin-li", { rot: 2, die: 4.5, radius: 30, mis: 0.6, scuff: 0.6 })}>linkedin</a>
+          <a href="/rss.xml" class="pin st hop label sunflower" style={sk("pin-rss", { rot: -0.5, die: 4.5, radius: 14, mis: 0.8 })}>rss</a>
         </div>
-        <span class="footer-copy">&copy; mircea</span>
       </div>
     </footer>
     <!-- Guarded: ViewTransitions may re-run inline scripts; count.js only sees full loads, so swaps are counted here.
@@ -61,80 +73,25 @@ const pageTitle = title ? `${title} — ${siteTitle}` : siteTitle;
 </html>
 
 <style>
-  nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1.5rem 2rem;
-    max-width: 48rem;
-    margin: 0 auto;
-  }
+  /* same column as .card: full width, max 46rem, 1.2rem gutters */
+  nav { display: flex; align-items: flex-start; gap: 1rem; position: relative; max-width: 46rem; margin: 1.4rem auto 0; padding: 0 1.2rem; }
+  .nav-s { display: inline-flex; align-items: center; justify-content: center; height: 2.6rem; padding: 0 1.1rem; font-size: 1rem; line-height: 1; z-index: 2; }
+  .nav-links { display: flex; gap: 1.1rem; align-items: center; margin-left: auto; }
+  .nav-links a { min-width: 4.8rem; }
+  .bubblegum { --c: var(--bubblegum); }
+  .sunflower { --c: var(--sunflower); }
+  main { max-width: 46rem; margin: 0 auto; padding: 0 1.2rem 3rem; }
 
-  .nav-title {
-    font-family: var(--font-heading);
-    font-size: 1.4rem;
-    font-weight: 700;
-    color: var(--text-bright);
-  }
+  /* footer: enamel pins, a metal (or gold) rim is the backing layer */
+  .site-footer { max-width: 46rem; margin: 0 auto; padding: 1rem 1.2rem 3rem; }
+  .footer-inner { display: flex; flex-wrap: wrap; gap: 1.2rem; justify-content: center; padding-top: 1rem; }
+  .footer-links { display: flex; flex-wrap: wrap; gap: 1.2rem; }
+  .pin { --ow: 3px; --back: var(--metal); --backline: 2px solid var(--ink); font-size: .9rem; padding: .6rem 1.2rem; }
+  .pin.sunflower { --back: var(--gold); }
 
-  .nav-title:hover {
-    text-decoration: none;
-  }
-
-  .nav-links {
-    display: flex;
-    gap: 1.5rem;
-  }
-
-  .nav-links a {
-    font-size: 0.85rem;
-    color: var(--text-muted);
-    text-transform: lowercase;
-    letter-spacing: 0.05em;
-  }
-
-  .nav-links a:hover {
-    color: var(--text-bright);
-    text-decoration: none;
-  }
-
-  main {
-    max-width: 48rem;
-    margin: 0 auto;
-    padding: 0 2rem 4rem;
-  }
-
-  .site-footer {
-    max-width: 48rem;
-    margin: 0 auto;
-    padding: 0 2rem 2.5rem;
-  }
-
-  .footer-inner {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--surface);
-  }
-
-  .footer-links {
-    display: flex;
-    gap: 1.2rem;
-  }
-
-  .footer-links a {
-    font-size: 0.75rem;
-    color: var(--text-muted);
-  }
-
-  .footer-links a:hover {
-    color: var(--text-bright);
-    text-decoration: none;
-  }
-
-  .footer-copy {
-    font-size: 0.7rem;
-    color: var(--text-muted);
+  @media (max-width: 520px) {
+    .nav-s { height: 2.4rem; padding: 0 .9rem; font-size: .92rem; }
+    .nav-links { gap: .8rem; }
+    .nav-links a { min-width: 0; }
   }
 </style>

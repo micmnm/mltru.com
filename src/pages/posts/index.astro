@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { getCollection } from "astro:content";
+import { sk } from "../../lib/sticker";
 
 const posts = await getCollection("posts");
 posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
@@ -39,128 +40,45 @@ function getLongExcerpt(body: string): string {
 ---
 
 <BaseLayout title="Posts">
-  <h1 class="page-title">Posts</h1>
+  <h1 class="page-title st" style={sk("posts-title", { rot: -2, die: 5, radius: 16, mis: 1 })}>Posts</h1>
 
   {latestPost && (
     <section class="latest">
-      <a href={`/posts/${latestPost.id}/`} class="latest-link">
-        <span class="latest-label">latest</span>
-        <h2 class="latest-title">{latestPost.data.title}</h2>
-        <p class="latest-excerpt">{getLongExcerpt(latestPost.body ?? "")}</p>
-        <span class="latest-read">continue reading &rarr;</span>
-      </a>
+      <div class="tile" style={sk(latestPost.id, { rot: -0.8, radius: 12, mis: 0.8, scuff: 1, peel: 1 })}>
+        <a href={`/posts/${latestPost.id}/`} class="st latest-link">
+          <span class="dir">latest</span>
+          <h2 class="latest-title">{latestPost.data.title}</h2>
+          <p class="latest-excerpt">{getLongExcerpt(latestPost.body ?? "")}</p>
+          <span class="latest-read label">continue reading &rarr;</span>
+        </a>
+      </div>
     </section>
   )}
 
-  {years.length > 0 && (
-    <section class="posts">
-      {years.map((year) => (
-        <div class="year-group">
-          <h2 class="year">{year}</h2>
-          <ul>
-            {olderByYear[year]?.map((post) => (
-              <li>
-                <a href={`/posts/${post.id}/`}>
-                  <span class="post-title">{post.data.title}</span>
-                  <span class="post-excerpt">{getExcerpt(post.body ?? "")}</span>
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-      ))}
+  {years.map((year) => (
+    <section class="year-group">
+      <h2 class="section-label st label" style={sk("year:" + year, { rot: -2, die: 3.5, radius: 40, mis: 1 })}>{year}</h2>
+      <ul class="tiles">
+        {olderByYear[year]?.map((post, i) => (
+          <li class="tile" style={sk(post.id, { rot: [-1.4, 1.1, -0.7, 1.6][i % 4], radius: 10, mis: 0.55, scuff: 0.3, peel: 0.35 })}>
+            <a href={`/posts/${post.id}/`} class="st">
+              <span class="post-title">{post.data.title}</span>
+              <span class="post-excerpt">{getExcerpt(post.body ?? "")}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
     </section>
-  )}
+  ))}
 </BaseLayout>
 
 <style>
-  .page-title {
-    font-size: 1.6rem;
-    margin: 2rem 0 1.5rem;
-  }
-
-  .latest {
-    margin: 1.5rem 0 2.5rem;
-  }
-
-  .latest-link {
-    display: block;
-    padding: 1.2rem 1.2rem;
-    border-left: 2px solid var(--accent);
-    border-radius: 2px;
-  }
-
-  .latest-link:hover {
-    background: var(--surface);
-    text-decoration: none;
-  }
-
-  .latest-label {
-    display: block;
-    font-size: 0.7rem;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.15em;
-    margin-bottom: 0.4rem;
-  }
-
-  .latest-title {
-    font-size: 1.3rem;
-    margin-bottom: 0.6rem;
-  }
-
-  .latest-excerpt {
-    color: var(--text);
-    font-size: 0.85rem;
-    line-height: 1.7;
-    margin-bottom: 0.8rem;
-  }
-
-  .latest-read {
-    display: inline-block;
-    font-size: 0.75rem;
-    color: var(--accent);
-  }
-
-  .posts {
-    padding-top: 2rem;
-    border-top: 1px solid var(--surface);
-  }
-
-  .year {
-    font-size: 1rem;
-    color: var(--text-muted);
-    font-weight: 400;
-    margin-bottom: 0.8rem;
-    letter-spacing: 0.1em;
-  }
-
-  .year-group { margin-bottom: 2rem; }
-  ul { list-style: none; }
-  li { margin-bottom: 1rem; }
-
-  li a {
-    display: block;
-    padding: 0.6rem 0.8rem;
-    border-radius: 4px;
-  }
-
-  li a:hover {
-    background: var(--surface);
-    text-decoration: none;
-  }
-
-  .post-title {
-    display: block;
-    color: var(--text-bright);
-    font-size: 0.95rem;
-    font-weight: 500;
-  }
-
-  .post-excerpt {
-    display: block;
-    color: var(--text-muted);
-    font-size: 0.8rem;
-    margin-top: 0.2rem;
-  }
+  .page-title { display: inline-block; --c: var(--sunflower); font-size: calc(2rem * var(--ts)); padding: .35rem 1.2rem .3rem; margin: 1rem 0 1.8rem .6rem; }
+  .latest { margin: 0 0 3rem; }
+  .latest .tile { --c: var(--mint); }
+  .latest-title { font-size: calc(1.5rem * var(--ts)); margin: .1rem 0 .6rem; }
+  .latest-excerpt { font-size: 1rem; line-height: 1.55; margin-bottom: .8rem; }
+  .latest-read { display: inline-block; font-size: .9rem; }
+  .year-group { margin-bottom: 2.6rem; }
+  .year-group .section-label { margin-top: 0; }
 </style>
