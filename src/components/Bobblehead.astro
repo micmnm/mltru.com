@@ -47,7 +47,6 @@ const dots = Array.from({ length: 12 }, (_, i) => {
       <g transform="translate(100 223) translate(-.9 .8) scale(.97 .88) translate(-100 -223)"><path d={BASE} fill="#F4604A" /><path d={BASE} fill="url(#grain)" /></g>
       <path d={BASE} class="ink" fill="none" />
       <path d="M50 216 Q100 211 150 216" class="stripe" />
-      <text x="100" y="233" class="fine" text-anchor="middle">mltru</text>
     </g>
 
     <g data-part="head">
@@ -74,8 +73,7 @@ const dots = Array.from({ length: 12 }, (_, i) => {
   .toy .w-col { stroke: #5DBBEA; stroke-width: var(--sc); }
   .toy .w-dark { stroke: #2F8DBD; }
   .toy .stripe { fill: none; stroke: #FFF7E0; stroke-width: 3.2; stroke-linecap: round; }
-  .toy .fine { font-family: var(--font-heading); font-size: 13px; fill: #FFF7E0; }
-  .toy--small .fine, .toy--small .stripe { display: none; }
+  .toy--small .stripe { display: none; }
 </style>
 
 <script>
