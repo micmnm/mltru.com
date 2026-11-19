@@ -6,3 +6,9 @@ output
 pelican-hyde
 __pycache__
 *.sketch
+.claude
+.cursor
+.mcp.json
+.env*
+CLAUDE.md
+AGENTS.md
